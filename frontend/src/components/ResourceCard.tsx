@@ -1,6 +1,7 @@
 "use client"
 
 import { ExternalLink, DollarSign } from "lucide-react"
+import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
@@ -25,7 +26,11 @@ export default function ResourceCard({
   description,
 }: ResourceCardProps) {
   return (
-    <div className="glass-effect rounded-xl p-6 hover:border-glow-purple transition-all duration-300 group h-full flex flex-col">
+    <motion.div
+      className="rounded-xl p-6 border border-purple-200/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 hover:border-purple-400 dark:hover:border-purple-400 transition-all duration-300 group h-full flex flex-col shadow-sm hover:shadow-md"
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
       <div className="flex flex-col space-y-4 flex-1">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
@@ -37,10 +42,10 @@ export default function ResourceCard({
           </div>
           <Badge
             variant={cost === "Free" ? "default" : "secondary"}
-            className={`glass-effect text-xs font-medium px-3 py-1 shrink-0 ${
+            className={`text-xs font-medium px-3 py-1 shrink-0 ${
               cost === "Free"
-                ? "border border-green-500/30 bg-green-500/10 text-green-400"
-                : "border border-blue-500/30"
+                ? "border border-green-500/50 dark:border-green-500/30 bg-green-100/50 dark:bg-green-500/20 text-green-700 dark:text-green-300"
+                : "border border-blue-500/50 dark:border-blue-500/30 bg-blue-100/50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300"
             }`}
           >
             {cost === "Free" ? "Free" : price || "Paid"}
@@ -60,7 +65,7 @@ export default function ResourceCard({
             <Badge
               key={index}
               variant="outline"
-              className="text-xs px-2 py-1 border-white/20 hover:border-purple-400/50 transition-colors"
+              className="text-xs px-2 py-1 border-purple-200/50 dark:border-white/20 bg-white/50 dark:bg-white/5 hover:border-purple-400 dark:hover:border-purple-400 transition-colors"
             >
               {skill}
             </Badge>
@@ -68,7 +73,7 @@ export default function ResourceCard({
           {skills.length > 3 && (
             <Badge
               variant="outline"
-              className="text-xs px-2 py-1 border-white/20"
+              className="text-xs px-2 py-1 border-purple-200/50 dark:border-white/20 bg-white/50 dark:bg-white/5"
             >
               +{skills.length - 3} more
             </Badge>
@@ -86,6 +91,6 @@ export default function ResourceCard({
           </a>
         </Button>
       </div>
-    </div>
+    </motion.div>
   )
 }

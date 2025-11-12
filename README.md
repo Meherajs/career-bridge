@@ -19,6 +19,7 @@ The interface features a sleek dark theme with glassmorphism effects, blue-purpl
 - **Next.js 15.3.5** with Turbopack for blazing-fast development
 - **React 19** with client-side interactivity
 - **Tailwind CSS 4** with custom glassmorphism and gradient utilities
+- **Framer Motion** for smooth page transitions and animations
 - **Radix UI** components for accessible, unstyled primitives
 - **Lucide React** for beautiful, consistent iconography
 - **TypeScript** for type-safe development
@@ -55,14 +56,20 @@ career-bridge/
 │   │   │   ├── profile/            # User profile management
 │   │   │   ├── login/              # Authentication - sign in
 │   │   │   ├── register/           # Authentication - sign up
+│   │   │   ├── onboarding/         # Multi-step onboarding flow
 │   │   │   ├── page.tsx            # Landing page
 │   │   │   ├── layout.tsx          # Root layout wrapper
+│   │   │   ├── template.tsx        # Page transition wrapper
 │   │   │   └── globals.css         # Global styles & animations
 │   │   ├── components/
 │   │   │   ├── ui/                 # Reusable UI components (Radix UI)
 │   │   │   ├── Navbar.tsx          # Navigation component
 │   │   │   ├── Footer.tsx          # Footer with links & contact
 │   │   │   ├── TestimonialScroll.tsx  # Infinite scrolling testimonials
+│   │   │   ├── OnboardingFlow.tsx  # Multi-step onboarding component
+│   │   │   ├── PageTransition.tsx  # Framer Motion page transitions
+│   │   │   ├── ThemeToggle.tsx     # Dark/light theme switcher
+│   │   │   ├── ThemeProvider.tsx   # Theme context provider
 │   │   │   ├── JobCard.tsx         # Job listing card
 │   │   │   ├── ResourceCard.tsx    # Learning resource card
 │   │   │   └── JobDetailsModal.tsx # Job details modal
@@ -107,20 +114,22 @@ career-bridge/
 - Editable personal information fields
 - Dynamic skills management with add/remove functionality
 - Career preferences (education, experience, track)
-- CV/Resume text editor for highlights and achievements
+- CV/Resume file upload (PDF, DOC, DOCX) with file management
 
 ### **Authentication**
 - Split-screen design with gradient hero sections
 - Login page with email/password and "Remember me" option
-- Register page with comprehensive onboarding form
+- Register page with streamlined sign-up (name, email, password only)
+- Multi-step onboarding flow after registration (education, experience, career track)
 - Google OAuth integration with official branding
 - Elegant "OR" divider for social auth options
 - Mobile-responsive forms with validation
 
 ### **UI/UX Excellence**
-- Consistent dark theme with glassmorphism effects
+- Consistent dark/light theme toggle with glassmorphism effects
 - Blue-purple gradient accents throughout
-- Smooth hover states and transitions
+- Smooth Framer Motion page transitions between routes
+- Subtle hover and tap animations on buttons and cards
 - Responsive design for all screen sizes
 - Accessible components with proper ARIA labels
 
@@ -138,9 +147,10 @@ career-bridge/
 2. **Dashboard (`/dashboard`)** – Personalized overview with job and resource recommendations
 3. **Jobs (`/jobs`)** – Searchable job listings with advanced filters
 4. **Resources (`/resources`)** – Curated learning materials with skill filters
-5. **Profile (`/profile`)** – User profile editor with skills management
+5. **Profile (`/profile`)** – User profile editor with skills management and CV upload
 6. **Login (`/login`)** – Sign in with email/password or Google OAuth
-7. **Register (`/register`)** – Create account with career preferences
+7. **Register (`/register`)** – Create account with name, email, and password
+8. **Onboarding (`/onboarding`)** – Multi-step onboarding flow for education, experience, and career track
 
 Each page features smooth client-side navigation and maintains state during demo interactions.
 

@@ -2,18 +2,15 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, Moon, Sun, Briefcase, BookOpen, User, LayoutDashboard, LogOut } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { Menu, X, Briefcase, BookOpen, User, LayoutDashboard, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import ThemeToggle from "@/components/ThemeToggle"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isDark, setIsDark] = useState(true)
-
-  const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle("dark")
-  }
+  const pathname = usePathname()
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -23,7 +20,7 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-white/20 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -40,13 +37,22 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => {
               const Icon = link.icon
+              const isActive = pathname === link.href
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-white/5 transition-all duration-200 flex items-center space-x-2 group"
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center space-x-2 group relative ${
+                    isActive
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
+                      : "text-foreground hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                  }`}
                 >
-                  <Icon className="w-4 h-4 group-hover:text-blue-400 transition-colors" />
+                  <Icon className={`w-4 h-4 transition-colors ${
+                    isActive
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "group-hover:text-blue-500 dark:group-hover:text-blue-400"
+                  }`} />
                   <span>{link.label}</span>
                 </Link>
               )
@@ -55,23 +61,12 @@ export default function Navbar() {
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="rounded-lg hover:bg-white/5 transition-all duration-200"
-            >
-              {isDark ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-blue-400" />
-              )}
-            </Button>
+            <ThemeToggle />
 
             <Button
               asChild
               variant="ghost"
-              className="hidden md:flex items-center space-x-2 rounded-lg hover:bg-white/5 text-red-400 hover:text-red-300"
+              className="hidden md:flex items-center space-x-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 font-medium"
             >
               <Link href="/login">
                 <LogOut className="w-4 h-4" />
@@ -98,15 +93,24 @@ export default function Navbar() {
                 <div className="flex flex-col space-y-4 mt-8">
                   {navLinks.map((link) => {
                     const Icon = link.icon
+                    const isActive = pathname === link.href
                     return (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-3 rounded-lg text-foreground/80 hover:text-foreground hover:bg-white/5 transition-all duration-200 group"
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
+                          isActive
+                            ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 font-semibold"
+                            : "text-foreground/80 hover:text-foreground hover:bg-white/5 font-medium"
+                        }`}
                       >
-                        <Icon className="w-5 h-5 group-hover:text-blue-400 transition-colors" />
-                        <span className="font-medium">{link.label}</span>
+                        <Icon className={`w-5 h-5 transition-colors ${
+                          isActive
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "group-hover:text-blue-400"
+                        }`} />
+                        <span>{link.label}</span>
                       </Link>
                     )
                   })}

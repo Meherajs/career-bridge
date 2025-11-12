@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
+import { motion } from "framer-motion"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { User, Mail, GraduationCap, Briefcase, Target, X, Plus, Save, FileText } from "lucide-react"
+import { User, GraduationCap, Briefcase, Target, X, Plus, Save, FileText, Upload, File, Trash2 } from "lucide-react"
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ export default function ProfilePage() {
   ])
   
   const [newSkill, setNewSkill] = useState("")
-  const [cvText, setCvText] = useState("")
+  const [uploadedCV, setUploadedCV] = useState<File | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
   const updateFormData = (field: string, value: string) => {
@@ -46,6 +46,28 @@ export default function ProfilePage() {
 
   const removeSkill = (skillToRemove: string) => {
     setSkills(skills.filter(skill => skill !== skillToRemove))
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type (PDF, DOC, DOCX)
+      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+      if (allowedTypes.includes(file.type)) {
+        setUploadedCV(file)
+      } else {
+        alert("Please upload a PDF or Word document (.pdf, .doc, .docx)")
+      }
+    }
+  }
+
+  const handleRemoveCV = () => {
+    setUploadedCV(null)
+    // Reset the file input
+    const fileInput = document.getElementById('cv-upload') as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ''
+    }
   }
 
   const handleSave = () => {
@@ -74,7 +96,11 @@ export default function ProfilePage() {
           {/* Main Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Information */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10">
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                 <User className="w-5 h-5 text-blue-400" />
                 Personal Information
@@ -88,28 +114,29 @@ export default function ProfilePage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => updateFormData("name", e.target.value)}
-                    className="glass-effect border-white/10 focus:border-blue-500 h-12"
+                    className="glass-effect border-gray-300 dark:border-white/10 focus:border-blue-500 dark:focus:border-blue-500 h-12"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-foreground">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => updateFormData("email", e.target.value)}
-                      className="pl-10 glass-effect border-white/10 focus:border-blue-500 h-12"
-                    />
-                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateFormData("email", e.target.value)}
+                    className="glass-effect border-gray-300 dark:border-white/10 focus:border-blue-500 dark:focus:border-blue-500 h-12"
+                  />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Career Information */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10">
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                 <Target className="w-5 h-5 text-purple-400" />
                 Career Information
@@ -121,7 +148,7 @@ export default function ProfilePage() {
                   <div className="relative">
                     <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                     <Select value={formData.education} onValueChange={(value) => updateFormData("education", value)}>
-                      <SelectTrigger className="pl-10 glass-effect border-white/10 h-12">
+                      <SelectTrigger className="pl-10 glass-effect border-gray-300 dark:border-white/10 h-12">
                         <SelectValue placeholder="Select education level" />
                       </SelectTrigger>
                       <SelectContent className="glass-effect border-white/10">
@@ -139,7 +166,7 @@ export default function ProfilePage() {
                   <div className="relative">
                     <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                     <Select value={formData.experience} onValueChange={(value) => updateFormData("experience", value)}>
-                      <SelectTrigger className="pl-10 glass-effect border-white/10 h-12">
+                      <SelectTrigger className="pl-10 glass-effect border-gray-300 dark:border-white/10 h-12">
                         <SelectValue placeholder="Select experience level" />
                       </SelectTrigger>
                       <SelectContent className="glass-effect border-white/10">
@@ -157,7 +184,7 @@ export default function ProfilePage() {
                   <div className="relative">
                     <Target className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
                     <Select value={formData.track} onValueChange={(value) => updateFormData("track", value)}>
-                      <SelectTrigger className="pl-10 glass-effect border-white/10 h-12">
+                      <SelectTrigger className="pl-10 glass-effect border-gray-300 dark:border-white/10 h-12">
                         <SelectValue placeholder="Select career track" />
                       </SelectTrigger>
                       <SelectContent className="glass-effect border-white/10">
@@ -171,36 +198,90 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* CV Section */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10">
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-green-400" />
                 CV / Resume
               </h2>
               
-              <div className="space-y-2">
-                <Label htmlFor="cv" className="text-foreground">
-                  Paste your CV text or key highlights
-                </Label>
-                <Textarea
-                  id="cv"
-                  placeholder="Enter your CV content, work experience, projects, achievements..."
-                  value={cvText}
-                  onChange={(e) => setCvText(e.target.value)}
-                  className="glass-effect border-white/10 focus:border-green-500 min-h-[200px] resize-y"
-                />
+              <div className="space-y-4">
+                {/* File Upload Area */}
+                <div>
+                  <Label htmlFor="cv-upload" className="text-foreground mb-2 block">
+                    Upload your CV or Resume
+                  </Label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      id="cv-upload"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="cv-upload"
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-white/20 rounded-lg cursor-pointer hover:border-green-400 dark:hover:border-green-400 transition-colors bg-gray-50/50 dark:bg-gray-800/30 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                        <p className="mb-2 text-sm text-foreground">
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          PDF, DOC, or DOCX (MAX. 10MB)
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Uploaded File Display */}
+                {uploadedCV && (
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-green-200 dark:border-green-500/30 bg-green-50/50 dark:bg-green-900/20">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                        <File className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {uploadedCV.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {(uploadedCV.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemoveCV}
+                      className="flex-shrink-0 ml-3 p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 transition-colors"
+                      aria-label="Remove CV"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 <p className="text-xs text-muted-foreground">
                   This information helps us provide better job recommendations
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Skills Section - Sidebar */}
           <div className="lg:col-span-1">
-            <div className="glass-effect rounded-xl p-6 border border-white/10 sticky top-24">
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <h2 className="text-xl font-semibold text-foreground mb-6">
                 Skills
               </h2>
@@ -214,7 +295,7 @@ export default function ProfilePage() {
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && addSkill()}
-                    className="glass-effect border-white/10 focus:border-purple-500 h-10"
+                    className="glass-effect border-gray-300 dark:border-white/10 focus:border-purple-500 dark:focus:border-purple-500 h-10"
                   />
                   <Button
                     onClick={addSkill}
@@ -271,7 +352,7 @@ export default function ProfilePage() {
                   </>
                 )}
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </main>

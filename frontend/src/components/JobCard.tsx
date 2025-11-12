@@ -1,6 +1,7 @@
 "use client"
 
 import { MapPin, Briefcase, Clock } from "lucide-react"
+import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 
@@ -26,8 +27,12 @@ export default function JobCard({
   onViewDetails,
 }: JobCardProps) {
   return (
-    <div className="glass-effect rounded-xl p-6 hover:border-glow-blue transition-all duration-300 group cursor-pointer">
-      <div className="flex flex-col space-y-4">
+    <motion.div
+      className="rounded-xl p-6 border border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 hover:border-blue-400 dark:hover:border-blue-400 transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md h-full flex flex-col"
+      whileHover={{ y: -4, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      <div className="flex flex-col space-y-4 flex-1">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
@@ -38,7 +43,7 @@ export default function JobCard({
           </div>
           <Badge
             variant="secondary"
-            className="glass-effect text-xs font-medium px-3 py-1 border border-blue-500/30"
+            className="text-xs font-medium px-3 py-1 border border-blue-500/50 dark:border-blue-500/30 bg-blue-100/50 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300"
           >
             {type}
           </Badge>
@@ -62,7 +67,7 @@ export default function JobCard({
             <Badge
               key={index}
               variant="outline"
-              className="text-xs px-2 py-1 border-white/20 hover:border-blue-400/50 transition-colors"
+              className="text-xs px-2 py-1 border-blue-200/50 dark:border-white/20 bg-white/50 dark:bg-white/5 hover:border-blue-400 dark:hover:border-blue-400 transition-colors"
             >
               {skill}
             </Badge>
@@ -70,7 +75,7 @@ export default function JobCard({
           {skills.length > 4 && (
             <Badge
               variant="outline"
-              className="text-xs px-2 py-1 border-white/20"
+              className="text-xs px-2 py-1 border-blue-200/50 dark:border-white/20 bg-white/50 dark:bg-white/5"
             >
               +{skills.length - 4} more
             </Badge>
@@ -85,6 +90,6 @@ export default function JobCard({
           View Details
         </Button>
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -117,10 +117,10 @@ export default function TestimonialScroll() {
               key={`${testimonial.id}-${index}`}
               className="flex-shrink-0 w-[350px] md:w-[420px] mx-3"
             >
-              <div className="glass-effect rounded-xl p-6 border border-white/10 hover:border-blue-500/30 transition-all duration-300 h-full">
+              <div className="rounded-xl p-6 border border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-br from-white to-blue-50/50 dark:from-blue-950/30 dark:to-blue-900/20 hover:border-blue-400 dark:hover:border-blue-400 transition-all duration-300 h-full shadow-sm hover:shadow-md">
                 <div className="flex items-start space-x-3 mb-4">
                   {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md">
                     {testimonial.avatar}
                   </div>
                   

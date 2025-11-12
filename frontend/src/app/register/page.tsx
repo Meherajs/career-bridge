@@ -3,11 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Mail, Lock, User, GraduationCap, Briefcase, Target, ArrowRight, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles, Target, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -15,9 +14,6 @@ export default function RegisterPage() {
     name: "",
     email: "",
     password: "",
-    education: "",
-    experience: "",
-    track: "",
   })
   const [isLoading, setIsLoading] = useState(false)
 
@@ -28,7 +24,9 @@ export default function RegisterPage() {
     // Simulate registration
     setTimeout(() => {
       setIsLoading(false)
-      router.push("/dashboard")
+      // Store basic user data (in a real app, this would be sent to the backend)
+      localStorage.setItem("userData", JSON.stringify(formData))
+      router.push("/onboarding")
     }, 1000)
   }
 
@@ -99,105 +97,41 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-foreground">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={formData.name}
-                    onChange={(e) => updateFormData("name", e.target.value)}
-                    className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
-                    required
-                  />
-                </div>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={(e) => updateFormData("name", e.target.value)}
+                  className="pl-4 pr-3 glass-effect border-gray-300 dark:border-white/10 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
+                  required
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={(e) => updateFormData("email", e.target.value)}
-                    className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
-                    required
-                  />
-                </div>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) => updateFormData("email", e.target.value)}
+                  className="pl-4 pr-3 glass-effect border-gray-300 dark:border-white/10 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
+                  required
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-foreground">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={formData.password}
-                    onChange={(e) => updateFormData("password", e.target.value)}
-                    className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="education" className="text-foreground">Education Level</Label>
-                <div className="relative">
-                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <Select value={formData.education} onValueChange={(value) => updateFormData("education", value)}>
-                    <SelectTrigger className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-12">
-                      <SelectValue placeholder="Select education level" />
-                    </SelectTrigger>
-                    <SelectContent className="glass-effect border-white/10">
-                      <SelectItem value="high-school">High School</SelectItem>
-                      <SelectItem value="bachelors">Bachelor's Degree</SelectItem>
-                      <SelectItem value="masters">Master's Degree</SelectItem>
-                      <SelectItem value="phd">PhD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="experience" className="text-foreground">Experience Level</Label>
-                <div className="relative">
-                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <Select value={formData.experience} onValueChange={(value) => updateFormData("experience", value)}>
-                    <SelectTrigger className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-12">
-                      <SelectValue placeholder="Select experience level" />
-                    </SelectTrigger>
-                    <SelectContent className="glass-effect border-white/10">
-                      <SelectItem value="fresher">Fresher (0-1 years)</SelectItem>
-                      <SelectItem value="junior">Junior (1-3 years)</SelectItem>
-                      <SelectItem value="mid">Mid-level (3-5 years)</SelectItem>
-                      <SelectItem value="senior">Senior (5+ years)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="track" className="text-foreground">Preferred Career Track</Label>
-                <div className="relative">
-                  <Target className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <Select value={formData.track} onValueChange={(value) => updateFormData("track", value)}>
-                    <SelectTrigger className="pl-10 glass-effect border-white/10 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-12">
-                      <SelectValue placeholder="Select career track" />
-                    </SelectTrigger>
-                    <SelectContent className="glass-effect border-white/10">
-                      <SelectItem value="software-dev">Software Development</SelectItem>
-                      <SelectItem value="data-science">Data Science</SelectItem>
-                      <SelectItem value="design">UI/UX Design</SelectItem>
-                      <SelectItem value="marketing">Digital Marketing</SelectItem>
-                      <SelectItem value="business">Business Analysis</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => updateFormData("password", e.target.value)}
+                  className="pl-4 pr-3 glass-effect border-gray-300 dark:border-white/10 focus:border-purple-500 dark:focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 h-12"
+                  required
+                />
               </div>
 
               <Button

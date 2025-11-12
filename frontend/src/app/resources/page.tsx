@@ -150,25 +150,25 @@ export default function ResourcesPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">Learning Resources</h1>
+          <h1 className="text-4xl font-bold text-gradient mb-2 leading-normal pb-2">Learning Resources</h1>
           <p className="text-muted-foreground">
             Curated courses and tutorials to boost your skills
           </p>
         </div>
 
         {/* Filters */}
-        <div className="glass-effect rounded-xl p-6 mb-8 border border-white/10">
+        <div className="glass-effect rounded-xl p-6 mb-8 border border-gray-200 dark:border-white/10">
           <div className="flex items-center gap-4 mb-4">
             <BookOpen className="w-5 h-5 text-purple-400" />
             <h2 className="text-lg font-semibold text-foreground">Filter Resources</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col md:flex-row gap-3">
             {/* Cost Filter */}
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+            <div className="relative flex-shrink-0 w-full md:w-auto">
+              <Filter className="absolute left-3 top-[12px] w-3.5 h-3.5 text-muted-foreground z-10 pointer-events-none" />
               <Select value={costFilter} onValueChange={setCostFilter}>
-                <SelectTrigger className="pl-10 glass-effect border-white/10 h-12">
+                <SelectTrigger className="pl-9 pr-3 glass-effect border-gray-300 dark:border-white/10 h-12 w-full md:w-[180px]">
                   <SelectValue placeholder="Filter by Cost" />
                 </SelectTrigger>
                 <SelectContent className="glass-effect border-white/10">
@@ -180,10 +180,10 @@ export default function ResourcesPage() {
             </div>
 
             {/* Skill Filter */}
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+            <div className="relative flex-shrink-0 w-full md:w-auto">
+              <Filter className="absolute left-3 top-[12px] w-3.5 h-3.5 text-muted-foreground z-10 pointer-events-none" />
               <Select value={skillFilter} onValueChange={setSkillFilter}>
-                <SelectTrigger className="pl-10 glass-effect border-white/10 h-12">
+                <SelectTrigger className="pl-9 pr-3 glass-effect border-gray-300 dark:border-white/10 h-12 w-full md:w-[180px]">
                   <SelectValue placeholder="Filter by Skill" />
                 </SelectTrigger>
                 <SelectContent className="glass-effect border-white/10 max-h-[300px]">

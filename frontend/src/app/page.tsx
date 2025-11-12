@@ -1,30 +1,33 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Briefcase, Target, BookOpen, TrendingUp, Sparkles, ArrowRight, CheckCircle } from "lucide-react"
 import Footer from "@/components/Footer"
 import TestimonialScroll from "@/components/TestimonialScroll"
+import ThemeToggle from "@/components/ThemeToggle"
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/10">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-white/20 shadow-sm">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gradient">CareerBridge</span>
-            </div>
+              <span className="text-xl font-bold text-gradient hidden sm:block">CareerBridge</span>
+            </Link>
             
             <div className="flex items-center space-x-4">
-              <Button asChild variant="ghost" className="rounded-lg hover:bg-white/5">
+              <ThemeToggle />
+              <Button asChild variant="ghost" className="rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 font-medium">
                 <Link href="/login">Sign In</Link>
               </Button>
-              <Button asChild className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/50 transition-all duration-300">
+              <Button asChild className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/50 transition-all duration-300 font-medium">
                 <Link href="/register">Get Started</Link>
               </Button>
             </div>
@@ -62,15 +65,19 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button asChild size="lg" className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300 h-14 px-8 text-lg group">
-                <Link href="/register">
-                  Start Your Journey
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-xl border-white/20 hover:bg-white/5 h-14 px-8 text-lg">
-                <Link href="/dashboard">View Demo</Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                <Button asChild size="lg" className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300 h-14 px-8 text-lg group">
+                  <Link href="/register">
+                    Start Your Journey
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                <Button asChild size="lg" variant="outline" className="rounded-xl border-2 border-gray-300 dark:border-white/30 hover:border-gray-400 dark:hover:border-white/50 hover:bg-gray-50 dark:hover:bg-white/5 h-14 px-8 text-lg font-medium transition-all duration-300">
+                  <Link href="/dashboard">View Demo</Link>
+                </Button>
+              </motion.div>
             </div>
 
             {/* Stats */}
@@ -106,48 +113,64 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Feature 1 */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10 hover:border-blue-500/50 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Target className="w-6 h-6 text-blue-400" />
+            <motion.div
+              className="rounded-xl p-6 border border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 hover:border-blue-400 dark:hover:border-blue-400 transition-all duration-300 group shadow-sm hover:shadow-md"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="w-12 h-12 rounded-lg bg-blue-500/20 dark:bg-blue-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">AI Career Roadmap</h3>
               <p className="text-sm text-muted-foreground">
                 Get personalized career paths based on your skills and aspirations
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 2 */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10 hover:border-purple-500/50 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Briefcase className="w-6 h-6 text-purple-400" />
+            <motion.div
+              className="rounded-xl p-6 border border-purple-200/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/30 dark:to-purple-900/20 hover:border-purple-400 dark:hover:border-purple-400 transition-all duration-300 group shadow-sm hover:shadow-md"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="w-12 h-12 rounded-lg bg-purple-500/20 dark:bg-purple-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Briefcase className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Job Matching</h3>
               <p className="text-sm text-muted-foreground">
                 Discover opportunities that match your profile and interests
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 3 */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10 hover:border-pink-500/50 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <BookOpen className="w-6 h-6 text-pink-400" />
+            <motion.div
+              className="rounded-xl p-6 border border-pink-200/50 dark:border-pink-500/30 bg-gradient-to-br from-pink-50 to-pink-100/50 dark:from-pink-950/30 dark:to-pink-900/20 hover:border-pink-400 dark:hover:border-pink-400 transition-all duration-300 group shadow-sm hover:shadow-md"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="w-12 h-12 rounded-lg bg-pink-500/20 dark:bg-pink-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <BookOpen className="w-6 h-6 text-pink-600 dark:text-pink-400" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Learning Resources</h3>
               <p className="text-sm text-muted-foreground">
                 Access curated courses and materials to boost your skills
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 4 */}
-            <div className="glass-effect rounded-xl p-6 border border-white/10 hover:border-green-500/50 transition-all duration-300 group">
-              <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-6 h-6 text-green-400" />
+            <motion.div
+              className="rounded-xl p-6 border border-green-200/50 dark:border-green-500/30 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/30 dark:to-green-900/20 hover:border-green-400 dark:hover:border-green-400 transition-all duration-300 group shadow-sm hover:shadow-md"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="w-12 h-12 rounded-lg bg-green-500/20 dark:bg-green-500/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Progress Tracking</h3>
               <p className="text-sm text-muted-foreground">
                 Monitor your growth and achievements along the way
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -166,7 +189,11 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="text-center space-y-4">
+            <motion.div
+              className="text-center space-y-4 rounded-xl p-8 border border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-br from-blue-50/80 to-white dark:from-blue-950/40 dark:to-blue-900/20 shadow-sm hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto text-2xl font-bold text-white shadow-lg">
                 1
               </div>
@@ -174,10 +201,14 @@ export default function Home() {
               <p className="text-muted-foreground">
                 Share your education, skills, and career interests to get started
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 2 */}
-            <div className="text-center space-y-4">
+            <motion.div
+              className="text-center space-y-4 rounded-xl p-8 border border-purple-200/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50/80 to-white dark:from-purple-950/40 dark:to-purple-900/20 shadow-sm hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mx-auto text-2xl font-bold text-white shadow-lg">
                 2
               </div>
@@ -185,10 +216,14 @@ export default function Home() {
               <p className="text-muted-foreground">
                 Receive personalized job matches and learning paths tailored for you
               </p>
-            </div>
+            </motion.div>
 
             {/* Step 3 */}
-            <div className="text-center space-y-4">
+            <motion.div
+              className="text-center space-y-4 rounded-xl p-8 border border-pink-200/50 dark:border-pink-500/30 bg-gradient-to-br from-pink-50/80 to-white dark:from-pink-950/40 dark:to-pink-900/20 shadow-sm hover:shadow-md transition-all duration-300"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-blue-600 flex items-center justify-center mx-auto text-2xl font-bold text-white shadow-lg">
                 3
               </div>
@@ -196,7 +231,7 @@ export default function Home() {
               <p className="text-muted-foreground">
                 Apply for jobs, learn new skills, and track your career progress
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -207,7 +242,11 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <div className="glass-effect rounded-2xl p-12 border-glow-blue text-center space-y-6">
+          <motion.div
+            className="rounded-2xl p-12 border border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/40 dark:via-purple-950/40 dark:to-pink-950/40 text-center space-y-6 shadow-lg hover:shadow-xl transition-all duration-300"
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               Ready to Build Your Future?
             </h2>
@@ -215,14 +254,16 @@ export default function Home() {
               Join thousands of students and graduates who are already using CareerBridge to achieve their career goals.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <Button asChild size="lg" className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300 h-14 px-8 text-lg animate-glow group">
-                <Link href="/register">
-                  Join CareerBridge Now
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+                <Button asChild size="lg" className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300 h-14 px-8 text-lg animate-glow group">
+                  <Link href="/register">
+                    Join CareerBridge Now
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

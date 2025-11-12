@@ -19,6 +19,7 @@ Navigate to `http://localhost:3000` to view the application.
 - **Next.js 15.3.5** with Turbopack
 - **React 19**
 - **Tailwind CSS 4**
+- **Framer Motion** for animations and transitions
 - **Radix UI** components
 - **Lucide React** icons
 - **TypeScript**
@@ -51,8 +52,11 @@ npm run lint      # Run ESLint
 - Interactive dashboard with job recommendations
 - Advanced job search with filters
 - Learning resources catalog
-- Profile management system
+- Profile management system with CV file upload
 - Modern authentication with Google OAuth
+- Multi-step onboarding flow after registration
+- Dark/light theme toggle
+- Smooth Framer Motion page transitions
 - Responsive design with glassmorphism effects
 
 For more detailed information, see the root [README.md](../README.md).
