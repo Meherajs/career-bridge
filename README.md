@@ -1,63 +1,155 @@
-# CareerBridge – AI-Powered Career Roadmap UI
+# CareerBridge – AI-Powered Career Platform
 
-CareerBridge is a featurerich, front-end prototype designed for the **AI-Powered Career Roadmap Platform** idea developed for a university hackathon.  
-The interface blends a Metamask-inspired aesthetic with glassmorphism, neon accents, and Framer Motion transitions to deliver a futuristic yet approachable experience for students and fresh graduates exploring their next career move.
+CareerBridge is a modern, feature-rich web application designed to help students and fresh graduates discover their perfect career path through AI-powered recommendations, curated job opportunities, and personalized learning resources.  
+The interface features a sleek dark theme with glassmorphism effects, blue-purple gradient accents, and smooth animations to deliver a professional yet approachable experience.
 
 ## Highlights
 
-- **Immersive dashboard** with quick stats, job recommendations, learning paths, and an AI momentum indicator.
-- **Filterable jobs marketplace** featuring skill tags, search, sort, and a slide-in detail modal with responsibilities, requirements, and perks.
-- **Learning resources hub** with skill/cost filters, animated cards, and immediate “Visit” actions.
-- **Profile studio** for editing personal information, tracking key skills, and managing CV notes with inline add/remove controls.
-- **Auth split-screen** showcasing login/register flows, validation hints, and a motivational hero with gradient overlays.
-- **Framer Motion transitions** and polished hover states bringing cohesion across navigation, cards, and CTAs.
-
-All views are implemented in a single-page layout with state-driven routing for the hackathon demo.
+- **Dynamic landing page** with hero section, feature showcase, how-it-works guide, and scrolling testimonials
+- **Interactive dashboard** displaying personalized job recommendations, learning resources, and profile match indicators
+- **Advanced jobs marketplace** with real-time search, location/type filters, and detailed job modal with full descriptions
+- **Learning resources hub** featuring skill and cost-based filters, curated course cards, and direct platform links
+- **Comprehensive profile management** for editing personal info, skills, career preferences, and CV content
+- **Modern authentication** with split-screen login/register flows, Google OAuth integration, and gradient hero sections
+- **Professional footer** inspired by industry leaders, with contact info, navigation links, and social media integration
+- **Smooth animations** and polished hover states creating cohesive user experience across all pages
 
 ## Tech Stack
 
-- **React 19 + Vite**
-- **Framer Motion** for page transitions
-- **React Icons** for navigation and UI iconography
-- Custom CSS with glassmorphism, gradients, and responsive grid layouts
+- **Next.js 15.3.5** with Turbopack for blazing-fast development
+- **React 19** with client-side interactivity
+- **Tailwind CSS 4** with custom glassmorphism and gradient utilities
+- **Radix UI** components for accessible, unstyled primitives
+- **Lucide React** for beautiful, consistent iconography
+- **TypeScript** for type-safe development
+- Custom CSS animations for floating effects and infinite scrolling
 
 ## Quick Start
 
 ```bash
+# Clone the repository
 git clone https://github.com/tamim2763/career-bridge.git
+
+# Navigate to frontend directory
 cd career-bridge/frontend
+
+# Install dependencies
 npm install
+
+# Run development server
 npm run dev
 ```
 
-Navigate to `http://localhost:5173` to explore the prototype.
+Navigate to `http://localhost:3000` to explore the application.
 
 ## Project Structure
 
 ```
 career-bridge/
 ├── frontend/
-│   ├── public/             # Static assets (favicons, preview images)
 │   ├── src/
-│   │   ├── App.jsx         # Main UI with stateful navigation
-│   │   ├── App.css         # Component and layout styling
-│   │   ├── index.css       # Global styles & fonts
-│   │   └── main.jsx        # React entry point
+│   │   ├── app/
+│   │   │   ├── dashboard/          # User dashboard with recommendations
+│   │   │   ├── jobs/               # Job listings with search & filters
+│   │   │   ├── resources/          # Learning resources catalog
+│   │   │   ├── profile/            # User profile management
+│   │   │   ├── login/              # Authentication - sign in
+│   │   │   ├── register/           # Authentication - sign up
+│   │   │   ├── page.tsx            # Landing page
+│   │   │   ├── layout.tsx          # Root layout wrapper
+│   │   │   └── globals.css         # Global styles & animations
+│   │   ├── components/
+│   │   │   ├── ui/                 # Reusable UI components (Radix UI)
+│   │   │   ├── Navbar.tsx          # Navigation component
+│   │   │   ├── Footer.tsx          # Footer with links & contact
+│   │   │   ├── TestimonialScroll.tsx  # Infinite scrolling testimonials
+│   │   │   ├── JobCard.tsx         # Job listing card
+│   │   │   ├── ResourceCard.tsx    # Learning resource card
+│   │   │   └── JobDetailsModal.tsx # Job details modal
+│   │   └── lib/
+│   │       └── utils.ts            # Utility functions
+│   ├── public/                      # Static assets
 │   ├── package.json
-│   └── vite.config.js
-└── README.md
+│   ├── next.config.ts
+│   └── README.md
+├── README.md
+└── .gitignore
 ```
 
-## Current Experience
+## Current Features
 
-- **Dashboard** – Overview of user profile snapshot, recommended jobs, and curated resources.
-- **Jobs** – Search and filter roles with instant feedback and an animated detail modal.
-- **Resources** – Skill-based and cost-based filters with clean card layouts.
-- **Profile** – Edit personal data, manage skills dynamically, and keep CV highlights handy.
-- **Auth** – Toggle between login and register inside a hopeful, split layout hero.
+### **Landing Page**
+- Engaging hero section with AI-powered platform messaging
+- Feature cards showcasing AI Career Roadmap, Job Matching, Learning Resources, and Progress Tracking
+- Step-by-step "How CareerBridge Works" guide
+- Infinite scrolling testimonials from successful users
+- Comprehensive footer with company info, navigation, and social links
 
-Each section is fully wired to demo interactions using static data, ideal for presentations and future integration work.
+### **Dashboard**
+- Personalized user summary with education, track, and experience
+- AI-powered job recommendations matched to user profile
+- Curated learning resources tailored to career goals
+- Interactive job details modal with full descriptions
 
-## License
+### **Jobs Marketplace**
+- Real-time search across jobs, companies, and skills
+- Advanced filters (location: all/remote/onsite, type: full-time/part-time/contract/internship)
+- Responsive job cards with salary, skills, and quick actions
+- Detailed job modal with responsibilities, requirements, and benefits
 
-This project is available for hackathon showcasing and further iteration. Feel free to fork and build on top of it.
+### **Learning Resources**
+- Skill-based and cost-based filtering (free/paid)
+- Clean card layouts with platform badges
+- Direct links to external learning platforms
+- Responsive grid layout for optimal viewing
+
+### **Profile Management**
+- Editable personal information fields
+- Dynamic skills management with add/remove functionality
+- Career preferences (education, experience, track)
+- CV/Resume text editor for highlights and achievements
+
+### **Authentication**
+- Split-screen design with gradient hero sections
+- Login page with email/password and "Remember me" option
+- Register page with comprehensive onboarding form
+- Google OAuth integration with official branding
+- Elegant "OR" divider for social auth options
+- Mobile-responsive forms with validation
+
+### **UI/UX Excellence**
+- Consistent dark theme with glassmorphism effects
+- Blue-purple gradient accents throughout
+- Smooth hover states and transitions
+- Responsive design for all screen sizes
+- Accessible components with proper ARIA labels
+
+## Design System
+
+- **Colors**: Dark background with blue (#3b82f6) to purple (#a855f7) gradients
+- **Effects**: Glass morphism with backdrop blur, subtle borders, and glow effects
+- **Typography**: Poppins for headings, Inter for body text
+- **Animations**: Floating elements, infinite scroll, hover scale effects
+- **Components**: Radix UI primitives with custom Tailwind styling
+
+## Pages Overview
+
+1. **Home (`/`)** – Landing page with hero, features, how-it-works, testimonials, and footer
+2. **Dashboard (`/dashboard`)** – Personalized overview with job and resource recommendations
+3. **Jobs (`/jobs`)** – Searchable job listings with advanced filters
+4. **Resources (`/resources`)** – Curated learning materials with skill filters
+5. **Profile (`/profile`)** – User profile editor with skills management
+6. **Login (`/login`)** – Sign in with email/password or Google OAuth
+7. **Register (`/register`)** – Create account with career preferences
+
+Each page features smooth client-side navigation and maintains state during demo interactions.
+
+## Future Enhancements
+
+- Backend integration with authentication API
+- AI-powered career roadmap generation
+- Real-time job matching algorithm
+- Progress tracking and goal setting
+- Social features (networking, mentorship)
+- Resume builder and interview preparation tools
+
