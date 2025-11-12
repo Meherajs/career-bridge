@@ -25,7 +25,7 @@ All views are implemented in a single-page layout with state-driven routing for 
 
 ```bash
 git clone https://github.com/tamim2763/career-bridge.git
-cd career-bridge
+cd career-bridge/frontend
 npm install
 npm run dev
 ```
@@ -36,13 +36,15 @@ Navigate to `http://localhost:5173` to explore the prototype.
 
 ```
 career-bridge/
-├── public/                 # Static assets (favicons, preview images)
-├── src/
-│   ├── App.jsx             # Main UI with stateful navigation
-│   ├── App.css             # Component and layout styling
-│   ├── index.css           # Global styles & fonts
-│   └── main.jsx            # React entry point
-├── package.json
+├── frontend/
+│   ├── public/             # Static assets (favicons, preview images)
+│   ├── src/
+│   │   ├── App.jsx         # Main UI with stateful navigation
+│   │   ├── App.css         # Component and layout styling
+│   │   ├── index.css       # Global styles & fonts
+│   │   └── main.jsx        # React entry point
+│   ├── package.json
+│   └── vite.config.js
 └── README.md
 ```
 
