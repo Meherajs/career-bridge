@@ -1,54 +1,77 @@
+//! HTTP request handlers for the CareerBridge API.
+//!
+//! This module contains all endpoint handlers organized by feature:
+//! - `auth` - Authentication and registration
+//! - `profile` - User profile management
+//! - `jobs` - Job recommendations
+//! - `learning` - Learning resources and skill gap analysis
+//! - `applications` - Application tracking
+//! - `progress` - Learning progress tracking
+//! - `types` - Shared request/response types
+
+mod types;
+mod auth;
+mod profile;
+mod jobs;
+mod learning;
+mod applications;
+mod progress;
+
+#[allow(unused_imports)]
+pub use types::*;
+
+use axum::{
+    routing::{get, post, put},
+    Router,
+};
 use crate::errors::AppResult;
-use crate::models::{CareerTrack, ExperienceLevel};
-use crate::security::hash_password;
-use axum::{Router, routing::post};
-use serde::Deserialize;
-use validator::Validate;
+use crate::AppState;
 
-#[derive(Debug, Deserialize, Validate)]
-pub struct RegisterPayload {
-    #[validate(length(min = 1, message = "Full name is required"))]
-    full_name: String,
-
-    #[validate(email(message = "Invalid email format"))]
-    email: String,
-
-    #[validate(length(min = 8, message = "Password must be at least 8 characters long"))]
-    password: String,
-
-    education_level: Option<String>,
-    experience_level: ExperienceLevel,
-    preferred_track: CareerTrack,
-}
-
-async fn register(axum::Json(payload): axum::Json<RegisterPayload>) -> AppResult<&'static str> {
-    payload.validate()?;
-
-    tracing::info!("New user registration (validated): {:?}", payload.email);
-
-    let hashed_password = hash_password(payload.password).await?;
-
-    tracing::debug!("Hashed password for user: {}", hashed_password);
-
-    // TODO:
-    // Save the user to the database
-
-    Ok("User registered successfully")
-}
-
-pub fn create_router() -> Router {
+/// Creates the application router with all routes configured.
+/// 
+/// # Arguments
+/// 
+/// * `app_state` - The shared application state
+/// 
+/// # Returns
+/// 
+/// A configured Axum Router with all API endpoints
+pub fn create_router(app_state: AppState) -> Router {
     Router::new()
-        .route("/", axum::routing::get(root))
-        .route("/error", axum::routing::get(test_error_handler))
-        .route("/register", post(register))
+        // Public routes
+        .route("/", get(root))
+        .route("/api/register", post(auth::register))
+        .route("/api/login", post(auth::login))
+        
+        // Protected routes - Profile
+        .route("/api/profile", get(profile::get_profile))
+        .route("/api/profile", put(profile::update_profile))
+        
+        // Protected routes - Job Recommendations
+        .route("/api/jobs/recommendations", get(jobs::get_job_recommendations))
+        
+        // Protected routes - Learning Resources
+        .route("/api/learning/recommendations", get(learning::get_learning_recommendations))
+        
+        // Protected routes - Skill Gap Analysis
+        .route("/api/skill-gap/{target_role}", get(learning::analyze_skill_gap))
+        
+        // Protected routes - Application Tracking
+        .route("/api/applications", post(applications::create_application))
+        .route("/api/applications", get(applications::get_my_applications))
+        .route("/api/applications/{id}", put(applications::update_application))
+        
+        // Protected routes - Progress Tracking
+        .route("/api/progress/resource/{id}/start", post(progress::start_resource))
+        .route("/api/progress/resource/{id}", put(progress::update_resource_progress))
+        .route("/api/progress", get(progress::get_my_progress))
+        
+        .with_state(app_state)
 }
 
+/// Root endpoint handler.
+/// 
+/// Returns a welcome message for the API.
 async fn root() -> AppResult<&'static str> {
-    tracing::info!("Request received for /");
-    Ok("Hello, World!")
-}
-
-async fn test_error_handler() -> AppResult<&'static str> {
-    tracing::info!("Request received for /error - this will fail!");
-    Err(crate::errors::AppError::InternalServerError)
+    Ok("CareerBridge API - SDG 8 Hackathon Project")
 }

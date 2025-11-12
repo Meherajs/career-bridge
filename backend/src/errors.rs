@@ -1,25 +1,39 @@
+//! Error types and result handling for the CareerBridge API.
+//!
+//! This module defines application-specific errors and their conversions
+//! to HTTP responses.
+
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, Json, Response},
+    response::{IntoResponse, Response, Json},
 };
 use serde_json::json;
 use thiserror::Error;
 use validator::ValidationErrors;
-
-// --- 1. NEW: Import sqlx::Error ---
 use sqlx::Error as SqlxError;
 
+/// Application-level errors that can occur during request processing.
 #[derive(Debug, Error)]
 pub enum AppError {
+    /// Internal server error for unexpected failures
     #[error("An internal server error occurred")]
     InternalServerError,
-
+    
+    /// Validation error for invalid request data
     #[error("Validation failed")]
     ValidationError(#[from] ValidationErrors),
-
-    // --- 2. NEW: Add a variant for database errors ---
+    
+    /// Database operation error
     #[error("Database error")]
     DatabaseError(#[from] SqlxError),
+    
+    /// Authentication or authorization failure
+    #[error("Unauthorized")]
+    Unauthorized,
+    
+    /// Requested resource not found
+    #[error("Not found")]
+    NotFound,
 }
 
 impl IntoResponse for AppError {
@@ -31,35 +45,42 @@ impl IntoResponse for AppError {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 json!({"error": "Internal Server Error"}),
             ),
-
-            AppError::ValidationError(errors) => {
-                (StatusCode::BAD_REQUEST, json!({"errors": errors}))
-            }
-
-            // --- 3. NEW: Handle database errors ---
+            
+            AppError::ValidationError(errors) => (
+                StatusCode::BAD_REQUEST,
+                json!({"errors": errors})
+            ),
+            
             AppError::DatabaseError(err) => {
-                // Check if this is a "unique constraint" violation
                 if let Some(db_err) = err.as_database_error() {
                     if db_err.is_unique_violation() {
-                        // This likely means the email is already taken
                         return (
-                            StatusCode::CONFLICT, // 409 Conflict
-                            Json(json!({"error": "Email already in use."})),
-                        )
-                            .into_response();
+                            StatusCode::CONFLICT,
+                            Json(json!({"error": "Email already in use."}))
+                        ).into_response();
                     }
                 }
-
-                // For all other database errors, return a generic 500
+                
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    json!({"error": "Internal Server Error"}),
+                    json!({"error": "Internal Server Error"})
                 )
             }
+            
+            AppError::Unauthorized => (
+                StatusCode::UNAUTHORIZED,
+                json!({"error": "Unauthorized"})
+            ),
+            
+            AppError::NotFound => (
+                StatusCode::NOT_FOUND,
+                json!({"error": "Not found"})
+            )
         };
 
         (status, Json(error_message)).into_response()
     }
 }
 
+/// Result type alias for application operations.
 pub type AppResult<T> = Result<T, AppError>;

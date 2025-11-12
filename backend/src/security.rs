@@ -1,3 +1,8 @@
+//! Password hashing and verification using Argon2.
+//!
+//! This module provides secure password handling functions that run
+//! in background threads to avoid blocking async operations.
+
 use crate::errors::{AppError, AppResult};
 use argon2::{
     Argon2,
@@ -6,6 +11,28 @@ use argon2::{
 use tokio::task::spawn_blocking;
 use tracing::error;
 
+/// Hashes a password using Argon2 algorithm.
+/// 
+/// This function runs in a blocking thread pool to avoid blocking the async runtime.
+/// 
+/// # Arguments
+/// 
+/// * `password` - The plaintext password to hash
+/// 
+/// # Returns
+/// 
+/// * `Ok(String)` - The hashed password string
+/// * `Err(AppError)` - If hashing fails
+/// 
+/// # Example
+/// 
+/// ```no_run
+/// # use backend::security::hash_password;
+/// # async {
+/// let hashed = hash_password("my_password".to_string()).await?;
+/// # Ok::<(), backend::errors::AppError>(())
+/// # };
+/// ```
 pub async fn hash_password(password: String) -> AppResult<String> {
     spawn_blocking(move || {
         let salt = SaltString::generate(&mut OsRng);
@@ -29,6 +56,20 @@ pub async fn hash_password(password: String) -> AppResult<String> {
     })?
 }
 
+/// Verifies a password against its hash.
+/// 
+/// This function runs in a blocking thread pool to avoid blocking the async runtime.
+/// 
+/// # Arguments
+/// 
+/// * `hash` - The hashed password string to verify against
+/// * `password` - The plaintext password to verify
+/// 
+/// # Returns
+/// 
+/// * `Ok(true)` - If the password matches the hash
+/// * `Ok(false)` - If the password doesn't match
+/// * `Err(AppError)` - If verification fails unexpectedly
 pub async fn verify_password(hash: String, password: String) -> AppResult<bool> {
     spawn_blocking(move || {
         let parsed_hash = PasswordHash::new(&hash).map_err(|e| {
