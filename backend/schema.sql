@@ -9,7 +9,10 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL DEFAULT '',
+    oauth_provider VARCHAR(50),
+    oauth_id VARCHAR(255),
+    avatar_url TEXT,
     education_level VARCHAR(255),
     experience_level experience_level,
     preferred_track career_track,
@@ -92,6 +95,7 @@ CREATE TABLE skill_assessments (
 
 -- Create indexes
 CREATE INDEX idx_users_email ON users(email);
+CREATE UNIQUE INDEX idx_users_oauth ON users(oauth_provider, oauth_id) WHERE oauth_provider IS NOT NULL;
 CREATE INDEX idx_jobs_experience_level ON jobs(experience_level);
 CREATE INDEX idx_jobs_job_type ON jobs(job_type);
 CREATE INDEX idx_application_tracking_user_id ON application_tracking(user_id);

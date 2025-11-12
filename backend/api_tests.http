@@ -21,6 +21,36 @@ Content-Type: application/json
   "password": "securepass123"
 }
 
+###
+### ============================================================================
+### OAUTH AUTHENTICATION (Google & GitHub)
+### ============================================================================
+
+### Initiate Google Login
+# Opens browser for Google OAuth flow
+# After authorization, user will be redirected to frontend with token
+GET {{baseUrl}}/auth/google
+
+### Initiate GitHub Login
+# Opens browser for GitHub OAuth flow
+# After authorization, user will be redirected to frontend with token
+GET {{baseUrl}}/auth/github
+
+### Note: OAuth Callbacks
+# These endpoints are automatically called by the OAuth provider
+# GET {{baseUrl}}/auth/google/callback?code=<code>
+# GET {{baseUrl}}/auth/github/callback?code=<code>
+# 
+# After successful authentication, users are redirected to:
+# http://localhost:5173/auth/callback?token=<JWT>&new_user=<true|false>
+#
+# If new_user=true, the frontend should prompt for profile completion
+
+###
+### ============================================================================
+### STANDARD AUTHENTICATION (Email & Password)
+### ============================================================================
+
 ### Login
 # @name login
 POST {{baseUrl}}/login

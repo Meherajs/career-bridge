@@ -16,6 +16,7 @@ mod jobs;
 mod learning;
 mod applications;
 mod progress;
+mod oauth;
 
 #[allow(unused_imports)]
 pub use types::*;
@@ -42,6 +43,12 @@ pub fn create_router(app_state: AppState) -> Router {
         .route("/", get(root))
         .route("/api/register", post(auth::register))
         .route("/api/login", post(auth::login))
+        
+        // OAuth routes
+        .route("/api/auth/google", get(oauth::google_login))
+        .route("/api/auth/google/callback", get(oauth::google_callback))
+        .route("/api/auth/github", get(oauth::github_login))
+        .route("/api/auth/github/callback", get(oauth::github_callback))
         
         // Protected routes - Profile
         .route("/api/profile", get(profile::get_profile))

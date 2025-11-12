@@ -184,3 +184,23 @@ pub struct UpdateProgressPayload {
     /// Completion percentage (0-100)
     pub completion_percentage: i32,
 }
+
+/// OAuth callback query parameters.
+#[derive(Debug, Deserialize)]
+pub struct OAuthCallback {
+    /// Authorization code from OAuth provider
+    pub code: String,
+    /// CSRF protection state (optional)
+    pub state: Option<String>,
+}
+
+/// OAuth login response.
+#[derive(Debug, Serialize)]
+pub struct OAuthLoginResponse {
+    /// JWT authentication token
+    pub token: String,
+    /// User profile information
+    pub user: UserProfile,
+    /// Whether this is a newly created user
+    pub is_new_user: bool,
+}

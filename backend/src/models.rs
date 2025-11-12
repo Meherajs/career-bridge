@@ -323,3 +323,49 @@ pub struct SkillAssessment {
     /// When the assessment was performed
     pub assessed_at: DateTime<Utc>,
 }
+
+/// OAuth provider user information.
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct OAuthUser {
+    /// Provider's unique user ID
+    pub id: String,
+    /// User's email address
+    pub email: String,
+    /// User's full name
+    pub name: String,
+    /// User's avatar/profile picture URL
+    pub avatar_url: Option<String>,
+}
+
+/// User with OAuth fields included.
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct UserWithOAuth {
+    /// Unique user identifier
+    pub id: Uuid,
+    /// User's full name
+    pub full_name: String,
+    /// User's email address
+    pub email: String,
+    /// OAuth provider (google, github, or null)
+    pub oauth_provider: Option<String>,
+    /// Provider's unique user ID
+    pub oauth_id: Option<String>,
+    /// User's avatar URL from OAuth provider
+    pub avatar_url: Option<String>,
+    /// Educational background
+    pub education_level: Option<String>,
+    /// Current experience level
+    pub experience_level: Option<ExperienceLevel>,
+    /// Preferred career track
+    pub preferred_track: Option<CareerTrack>,
+    /// Whether the user has completed their profile
+    pub profile_completed: bool,
+    /// List of skills
+    pub skills: Vec<String>,
+    /// List of projects
+    pub projects: Vec<String>,
+    /// Target job roles
+    pub target_roles: Vec<String>,
+    /// Raw CV text
+    pub raw_cv_text: Option<String>,
+}

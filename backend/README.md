@@ -33,6 +33,9 @@ CareerBridge helps users achieve career goals through:
 ## ✨ Features
 
 ### 🔐 Authentication & Security
+- **Multiple Login Methods**: Email/password, Google OAuth, GitHub OAuth
+- **OAuth Integration**: Sign in with Google or GitHub accounts
+- **Account Linking**: Automatic linking of OAuth and email accounts
 - **Simplified Registration**: Name, email, password only (no barriers)
 - **Instant Authentication**: JWT token generated immediately on registration
 - **Secure Tokens**: JWT-based authentication (24-hour validity)
@@ -92,7 +95,7 @@ cd backend
 
 # 2. Set up environment
 cp .env.example .env
-# Edit .env with your DATABASE_URL and JWT_SECRET
+# Edit .env with your DATABASE_URL, JWT_SECRET, and OAuth credentials (optional)
 
 # 3. Create database
 createdb -U postgres career_bridge
@@ -199,7 +202,26 @@ http://127.0.0.1:3000
 
 ### Public Endpoints
 
-#### Register User (Step 1: Simplified Registration)
+#### OAuth Authentication (NEW!)
+
+##### Login with Google
+```http
+GET /api/auth/google
+```
+Redirects to Google OAuth, then back to frontend with JWT token.
+
+##### Login with GitHub
+```http
+GET /api/auth/github
+```
+Redirects to GitHub OAuth, then back to frontend with JWT token.
+
+After OAuth authentication, users are redirected to:
+```
+http://localhost:5173/auth/callback?token=<JWT>&new_user=<true|false>
+```
+
+#### Register User (Traditional Method)
 ```http
 POST /api/register
 Content-Type: application/json
@@ -420,7 +442,10 @@ GET /api/progress
 #### users
 - `id` (UUID, PK)
 - `email` (TEXT, UNIQUE)
-- `password_hash` (TEXT)
+- `password_hash` (TEXT, optional for OAuth users)
+- `oauth_provider` (VARCHAR(50), nullable) - 'google', 'github', or NULL
+- `oauth_id` (VARCHAR(255), nullable) - Provider's unique user ID
+- `avatar_url` (TEXT, nullable) - Profile picture from OAuth
 - `full_name` (TEXT)
 - `education_level` (TEXT, nullable)
 - `experience_level` (ENUM, nullable until profile completion)
