@@ -94,13 +94,13 @@ cp .env.example .env
 # Edit .env with your DATABASE_URL, JWT_SECRET, and OAuth credentials (optional)
 
 # 3. Create database
-createdb -U postgres career_bridge
+createdb -U postgres database_db
 
 # 4. Run schema
-psql -U postgres -d career_bridge -f schema.sql
+psql -U postgres -d database_db -f schema.sql
 
 # 5. Seed data (includes 20 jobs with descriptions & salary ranges)
-psql -U postgres -d career_bridge -f seed_data.sql
+psql -U postgres -d database_db -f seed_data.sql
 
 # 6. Build and run
 cargo build
@@ -165,7 +165,7 @@ net start postgresql-x64-14
 
 Create `.env`:
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/career_bridge
+DATABASE_URL=postgresql://postgres:password@localhost:5432/database_db
 JWT_SECRET=your-secret-key-change-in-production
 ```
 
@@ -173,13 +173,13 @@ JWT_SECRET=your-secret-key-change-in-production
 
 ```bash
 # Create database
-createdb -U postgres career_bridge
+createdb -U postgres database_db
 
 # Apply schema
-psql -U postgres -d career_bridge -f schema.sql
+psql -U postgres -d database_db -f schema.sql
 
 # Verify
-psql -U postgres -d career_bridge -c "\dt"
+psql -U postgres -d database_db -c "\dt"
 ```
 
 ### 5. Build & Run
@@ -490,6 +490,22 @@ GET /api/progress
 - `started_at` (TIMESTAMPTZ)
 - `completed_at` (TIMESTAMPTZ)
 
+#### notifications
+- `id` (SERIAL, PK)
+- `user_id` (UUID, FK → users)
+- `title` (VARCHAR(255))
+- `message` (TEXT)
+- `type` (VARCHAR(50))
+- `is_read` (BOOLEAN, default: false)
+- `created_at` (TIMESTAMPTZ)
+
+#### skill_assessments
+- `id` (SERIAL, PK)
+- `user_id` (UUID, FK → users)
+- `skill_name` (VARCHAR(255))
+- `proficiency_level` (INTEGER, 1-10)
+- `assessed_at` (TIMESTAMPTZ)
+
 ### Enums
 - `experience_level`: fresher, junior, mid
 - `career_track`: web_development, data, design, marketing
@@ -563,7 +579,7 @@ sudo service postgresql start
 ### "relation does not exist"
 ```bash
 # Apply schema
-psql -U postgres -d career_bridge -f schema.sql
+psql -U postgres -d database_db -f schema.sql
 ```
 
 ### "password authentication failed"
