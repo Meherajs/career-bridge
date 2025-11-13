@@ -1,6 +1,7 @@
 //! Job recommendation handlers.
 
 use axum::{extract::{State, Query}, Json};
+use tracing::{info, debug};
 use crate::models::{User, Job, ExperienceLevel, CareerTrack, JobType};
 use crate::errors::AppResult;
 use crate::auth::AuthUser;
@@ -37,6 +38,10 @@ pub async fn get_job_recommendations(
     State(app_state): State<AppState>,
     Query(params): Query<JobQueryParams>,
 ) -> AppResult<Json<Vec<JobRecommendation>>> {
+    info!("Fetching job recommendations for user: {}", auth_user.user_id);
+    debug!("Query params: experience_level={:?}, limit={:?}", 
+           params.experience_level, params.limit);
+    
     // Get user profile
     let user = sqlx::query_as!(
         User,
@@ -147,5 +152,11 @@ pub async fn get_job_recommendations(
     // Sort by match score descending
     recommendations.sort_by(|a, b| b.match_score.partial_cmp(&a.match_score).unwrap());
 
+    info!("Returning {} job recommendations for user: {}", 
+          recommendations.len(), auth_user.user_id);
+    if !recommendations.is_empty() {
+        debug!("Top match score: {:.1}%", recommendations[0].match_score);
+    }
+    
     Ok(Json(recommendations))
 }

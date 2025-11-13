@@ -2,6 +2,7 @@
 
 use axum::{extract::State, Json};
 use validator::Validate;
+use tracing::{info, warn, error, debug};
 use crate::models::{User, ExperienceLevel, CareerTrack};
 use crate::errors::{AppResult, AppError};
 use crate::security::{hash_password, verify_password};
@@ -26,10 +27,14 @@ pub async fn register(
     State(app_state): State<AppState>,
     Json(payload): Json<RegisterPayload>,
 ) -> AppResult<Json<serde_json::Value>> {
-    payload.validate()?;
+    info!("Received registration request for email: {}", payload.email);
     
-    tracing::info!("New user registration: {:?}", payload.email);
-
+    payload.validate().map_err(|e| {
+        warn!("Registration validation failed for {}: {}", payload.email, e);
+        e
+    })?;
+    
+    debug!("Hashing password for user: {}", payload.email);
     let hashed_password = hash_password(payload.password).await?;
     
     let user_id = sqlx::query_scalar!(
@@ -43,10 +48,26 @@ pub async fn register(
         hashed_password
     )
     .fetch_one(&app_state.db_pool)
-    .await?;
+    .await
+    .map_err(|e| {
+        // Check for unique constraint violation (duplicate email)
+        if let Some(db_err) = e.as_database_error() {
+            if db_err.is_unique_violation() {
+                warn!("Registration failed: Email already exists - {}", payload.email);
+                return AppError::DatabaseError(e);
+            }
+        }
+        error!("Database error during registration for {}: {}", payload.email, e);
+        AppError::DatabaseError(e)
+    })?;
 
+    info!("User created successfully: user_id={}, email={}", user_id, payload.email);
+    
     // Generate JWT token for immediate login
+    debug!("Generating JWT token for user: {}", user_id);
     let token = create_jwt(user_id, payload.email.clone())?;
+    
+    info!("Registration successful for user: {}", user_id);
 
     Ok(Json(serde_json::json!({
         "message": "User registered successfully",
@@ -72,11 +93,15 @@ pub async fn login(
     State(app_state): State<AppState>,
     Json(payload): Json<LoginPayload>,
 ) -> AppResult<Json<LoginResponse>> {
-    payload.validate()?;
+    info!("Login attempt received for: {}", payload.email);
     
-    tracing::info!("Login attempt for: {:?}", payload.email);
+    payload.validate().map_err(|e| {
+        warn!("Login validation failed for {}: {}", payload.email, e);
+        e
+    })?;
 
     // Fetch user from database
+    debug!("Fetching user from database: {}", payload.email);
     let user = sqlx::query_as!(
         User,
         r#"
@@ -93,16 +118,28 @@ pub async fn login(
     )
     .fetch_optional(&app_state.db_pool)
     .await?
-    .ok_or(AppError::Unauthorized)?;
+    .ok_or_else(|| {
+        warn!("Login failed: User not found - {}", payload.email);
+        AppError::Unauthorized
+    })?;
 
+    info!("User found: user_id={}, profile_completed={}", user.id, user.profile_completed);
+    
     // Verify password
+    debug!("Verifying password for user: {}", user.id);
     let is_valid = verify_password(user.password_hash.clone(), payload.password).await?;
     if !is_valid {
+        warn!("Login failed: Invalid password for user - {}", payload.email);
         return Err(AppError::Unauthorized);
     }
+    
+    info!("Password verified successfully for user: {}", user.id);
 
     // Generate JWT token
+    debug!("Generating JWT token for user: {}", user.id);
     let token = create_jwt(user.id, user.email.clone())?;
+    
+    info!("Login successful for user: user_id={}, email={}", user.id, user.email);
 
     Ok(Json(LoginResponse {
         token,

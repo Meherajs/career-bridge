@@ -38,6 +38,13 @@ use crate::AppState;
 /// 
 /// A configured Axum Router with all API endpoints
 pub fn create_router(app_state: AppState) -> Router {
+    use tracing::info;
+    
+    info!("Setting up API routes:");
+    info!("  ✓ Public routes: /, /api/register, /api/login");
+    info!("  ✓ OAuth routes: /api/auth/google, /api/auth/github");
+    info!("  ✓ Protected routes: profile, jobs, learning, applications, progress");
+    
     Router::new()
         // Public routes
         .route("/", get(root))

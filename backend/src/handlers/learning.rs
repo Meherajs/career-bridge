@@ -1,6 +1,7 @@
 //! Learning resource and skill gap analysis handlers.
 
 use axum::{extract::{State, Path}, Json};
+use tracing::{info, debug};
 use crate::models::{User, Job, LearningResource, ExperienceLevel, CareerTrack, JobType, CostIndicator};
 use crate::errors::AppResult;
 use crate::auth::AuthUser;
@@ -29,6 +30,8 @@ pub async fn get_learning_recommendations(
     auth_user: AuthUser,
     State(app_state): State<AppState>,
 ) -> AppResult<Json<Vec<ResourceRecommendation>>> {
+    info!("Fetching learning recommendations for user: {}", auth_user.user_id);
+    
     // Get user profile
     let user = sqlx::query_as!(
         User,
@@ -92,7 +95,10 @@ pub async fn get_learning_recommendations(
 
     recommendations.sort_by(|a, b| b.relevance_score.partial_cmp(&a.relevance_score).unwrap());
 
-    Ok(Json(recommendations.into_iter().take(10).collect()))
+    let result: Vec<_> = recommendations.into_iter().take(10).collect();
+    info!("Returning {} learning recommendations for user: {}", result.len(), auth_user.user_id);
+    
+    Ok(Json(result))
 }
 
 /// Analyzes skill gaps for a target role.
@@ -124,6 +130,9 @@ pub async fn analyze_skill_gap(
     State(app_state): State<AppState>,
     Path(target_role): Path<String>,
 ) -> AppResult<Json<SkillGapAnalysis>> {
+    info!("Analyzing skill gap for user: {}, target_role: {}", 
+          auth_user.user_id, target_role);
+    
     // Get user profile
     let user = sqlx::query_as!(
         User,
@@ -209,6 +218,11 @@ pub async fn analyze_skill_gap(
         vec![]
     };
 
+    info!("Skill gap analysis complete for user {}: {}/{} skills matched ({:.1}%), {} gaps identified",
+          auth_user.user_id, matching_skills.len(), required_skills.len(), 
+          match_percentage, skill_gaps.len());
+    debug!("Skill gaps: {:?}", skill_gaps);
+    
     Ok(Json(SkillGapAnalysis {
         user_skills: user.skills,
         target_role,
