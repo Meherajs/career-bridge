@@ -46,8 +46,34 @@ async fn main() {
     
     info!("✓ Database connection pool created successfully");
     
+    // Initialize AI service
+    info!("Initializing AI services...");
+    let gemini_api_key = env::var("GEMINI_API_KEY").ok();
+    let groq_api_key = env::var("GROQ_API_KEY").ok();
+    
+    let ai_service = if gemini_api_key.is_some() || groq_api_key.is_some() {
+        info!("✓ AI service initialized with available providers");
+        if gemini_api_key.is_some() {
+            info!("  - Gemini API: enabled");
+        }
+        if groq_api_key.is_some() {
+            info!("  - Groq API: enabled");
+        }
+        Some(std::sync::Arc::new(backend::ai::AIService::new(
+            gemini_api_key,
+            groq_api_key,
+        )))
+    } else {
+        info!("⚠ AI service not configured (no API keys found)");
+        info!("  Set GEMINI_API_KEY or GROQ_API_KEY to enable AI features");
+        None
+    };
+    
     // Create application state
-    let app_state = AppState { db_pool };
+    let app_state = AppState { 
+        db_pool,
+        ai_service,
+    };
 
     // Create router
     info!("Configuring routes...");

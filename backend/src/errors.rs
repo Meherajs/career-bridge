@@ -21,7 +21,11 @@ pub enum AppError {
     
     /// Validation error for invalid request data
     #[error("Validation failed")]
-    ValidationError(#[from] ValidationErrors),
+    ValidationError(String),
+    
+    /// Validation errors from validator crate
+    #[error("Validation failed")]
+    ValidatorErrors(#[from] ValidationErrors),
     
     /// Database operation error
     #[error("Database error")]
@@ -38,6 +42,14 @@ pub enum AppError {
     /// Bad request with custom message
     #[error("{0}")]
     BadRequest(String),
+    
+    /// Configuration error
+    #[error("Configuration error: {0}")]
+    ConfigurationError(String),
+    
+    /// External service error (e.g., AI API)
+    #[error("External service error: {0}")]
+    ExternalServiceError(String),
 }
 
 impl IntoResponse for AppError {
@@ -46,10 +58,13 @@ impl IntoResponse for AppError {
         
         // Log appropriately based on error type
         match &self {
-            AppError::ValidationError(_) => debug!("Validation error: {:?}", self),
+            AppError::ValidationError(msg) => debug!("Validation error: {}", msg),
+            AppError::ValidatorErrors(_) => debug!("Validation errors: {:?}", self),
             AppError::Unauthorized => debug!("Unauthorized access attempt"),
             AppError::NotFound => debug!("Resource not found"),
             AppError::BadRequest(msg) => warn!("Bad request: {}", msg),
+            AppError::ConfigurationError(msg) => error!("Configuration error: {}", msg),
+            AppError::ExternalServiceError(msg) => error!("External service error: {}", msg),
             AppError::DatabaseError(err) => {
                 // Check if it's a user error (like duplicate key) vs system error
                 if let Some(db_err) = err.as_database_error() {
@@ -71,7 +86,12 @@ impl IntoResponse for AppError {
                 json!({"error": "Internal Server Error"}),
             ),
             
-            AppError::ValidationError(errors) => (
+            AppError::ValidationError(msg) => (
+                StatusCode::BAD_REQUEST,
+                json!({"error": msg})
+            ),
+            
+            AppError::ValidatorErrors(errors) => (
                 StatusCode::BAD_REQUEST,
                 json!({"errors": errors})
             ),
@@ -112,6 +132,16 @@ impl IntoResponse for AppError {
             
             AppError::BadRequest(msg) => (
                 StatusCode::BAD_REQUEST,
+                json!({"error": msg})
+            ),
+            
+            AppError::ConfigurationError(msg) => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                json!({"error": msg})
+            ),
+            
+            AppError::ExternalServiceError(msg) => (
+                StatusCode::BAD_GATEWAY,
                 json!({"error": msg})
             )
         };

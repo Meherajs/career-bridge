@@ -107,3 +107,34 @@ CREATE INDEX idx_user_progress_user_id ON user_progress(user_id);
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX idx_skill_assessments_user_id ON skill_assessments(user_id);
+
+-- Career roadmaps table for AI-generated learning paths (Part 2, Point 4)
+CREATE TABLE career_roadmaps (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    target_role VARCHAR(255) NOT NULL,
+    duration_weeks INTEGER,
+    roadmap_data JSONB NOT NULL,
+    ai_provider VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_roadmaps_user_id ON career_roadmaps(user_id);
+CREATE INDEX idx_roadmaps_created_at ON career_roadmaps(created_at DESC);
+
+-- Function to update updated_at timestamp for roadmaps
+CREATE OR REPLACE FUNCTION update_roadmap_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger to automatically update updated_at
+CREATE TRIGGER update_roadmap_timestamp
+    BEFORE UPDATE ON career_roadmaps
+    FOR EACH ROW
+    EXECUTE FUNCTION update_roadmap_timestamp();

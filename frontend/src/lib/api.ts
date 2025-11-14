@@ -74,6 +74,9 @@ export interface JobRecommendation {
     job_type: string;
     salary_min: number | null;
     salary_max: number | null;
+    responsibilities: string[];
+    requirements: string[];
+    benefits: string[];
   };
   match_score: number;
   matched_skills: string[];
@@ -247,6 +250,28 @@ export const profileApi = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update profile');
+    }
+
+    return await response.json();
+  },
+
+  // Upload CV/Resume (PDF)
+  uploadCV: async (file: File): Promise<{ message: string; extracted_length: number }> => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('cv_file', file);
+
+    const response = await fetch(`${API_BASE_URL}/profile/cv/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload CV');
     }
 
     return await response.json();

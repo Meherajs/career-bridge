@@ -240,6 +240,132 @@ Authorization: Bearer {{token}}
 
 ###
 ### ============================================================================
+### AI-POWERED FEATURES (Protected Routes)
+### ============================================================================
+
+### 1. Generic AI Action - Extract Skills
+POST {{baseUrl}}/ai/action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "extract_skills",
+  "provider": "gemini",
+  "input": "John Doe - Senior Software Engineer\n\nProfessional Summary:\nExperienced full-stack developer with 5 years of expertise in web development. Strong background in React, Node.js, and cloud technologies.\n\nTechnical Skills:\n- Programming: JavaScript, TypeScript, Python, Java\n- Frontend: React, Vue.js, Next.js, HTML5, CSS3, Tailwind\n- Backend: Node.js, Express, Django, REST APIs, GraphQL\n- Databases: PostgreSQL, MongoDB, Redis\n- Cloud: AWS (EC2, S3, Lambda), Docker, Kubernetes\n- Tools: Git, Jenkins, Jira\n\nExperience:\nSenior Software Engineer at Tech Corp (2020-Present)\n- Led development of microservices architecture\n- Mentored junior developers\n- Implemented CI/CD pipelines\n\nSoftware Developer at StartupXYZ (2018-2020)\n- Built responsive web applications\n- Collaborated with UX team\n\nEducation:\nB.S. Computer Science, MIT, 2018\n\nCertifications:\n- AWS Certified Solutions Architect\n- MongoDB Certified Developer"
+}
+
+### 2. Generic AI Action - Extract Skills (using Groq)
+POST {{baseUrl}}/ai/action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "extract_skills",
+  "provider": "groq",
+  "input": "Sarah Johnson - Frontend Developer\n\nSkills: React, JavaScript, CSS, HTML, Figma\nExperience: 2 years\nEducation: Bachelor's in Web Design"
+}
+
+### 3. Generic AI Action - Generate Roadmap
+POST {{baseUrl}}/ai/action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "generate_roadmap",
+  "provider": "gemini",
+  "input": "Full Stack Web Development",
+  "parameters": {
+    "current_skills": "HTML, CSS, JavaScript basics"
+  }
+}
+
+### 4. Generic AI Action - Ask Question
+POST {{baseUrl}}/ai/action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "ask_question",
+  "provider": "gemini",
+  "input": "What are the best programming languages to learn for web development in 2025?",
+  "parameters": {
+    "context": "I'm a beginner with basic HTML/CSS knowledge"
+  }
+}
+
+### 5. Generic AI Action - Generate Content (Cover Letter)
+POST {{baseUrl}}/ai/action
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "action": "generate_content",
+  "provider": "gemini",
+  "input": "I'm applying for a Senior React Developer position at Google. I have 4 years of experience with React, TypeScript, and Next.js.",
+  "parameters": {
+    "content_type": "cover_letter",
+    "tone": "professional",
+    "length": "medium"
+  }
+}
+
+### 6. Extract Skills and Save to Profile (Dedicated Endpoint)
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "Emily Chen - Data Scientist\n\nSummary:\nData scientist with 3 years of experience in machine learning and analytics.\n\nSkills:\n- Programming: Python, R, SQL\n- ML/AI: TensorFlow, PyTorch, Scikit-learn, Keras\n- Data: Pandas, NumPy, Matplotlib, Seaborn\n- Big Data: Spark, Hadoop\n- Cloud: AWS SageMaker, Google Cloud AI\n\nExperience:\nData Scientist at Analytics Co (2021-Present)\n- Built predictive models for customer churn\n- Implemented NLP pipelines\n- Conducted A/B testing\n\nData Analyst at Corp Inc (2020-2021)\n- Created dashboards with Tableau\n- Performed statistical analysis\n\nEducation:\nM.S. Data Science, Stanford, 2020\nB.S. Statistics, UC Berkeley, 2018\n\nCertifications:\n- Google Professional Data Engineer\n- TensorFlow Developer Certificate",
+  "provider": "gemini",
+  "update_profile": true
+}
+
+### 7. Extract Skills WITHOUT Saving to Profile
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "Short CV text for testing extraction only...",
+  "provider": "groq",
+  "update_profile": false
+}
+
+### 8. Generate Personalized Learning Roadmap (with user's current skills)
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "Machine Learning Engineer",
+  "provider": "gemini",
+  "include_current_skills": true
+}
+
+### 9. Generate Roadmap for Specific Tech Stack
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "DevOps Engineering with Kubernetes",
+  "provider": "groq",
+  "include_current_skills": false
+}
+
+### 10. Extract Skills from Complex CV
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "MICHAEL RODRIGUEZ\nFull Stack Developer | DevOps Engineer\nEmail: mike@example.com | Phone: (555) 123-4567\n\n=== PROFESSIONAL SUMMARY ===\nHighly skilled Full Stack Developer with 6+ years of experience building scalable web applications and implementing DevOps practices. Expert in JavaScript ecosystem, cloud infrastructure, and containerization.\n\n=== TECHNICAL EXPERTISE ===\n\nFrontend Development:\n• Advanced: React.js, Next.js, TypeScript, Redux, React Query\n• Intermediate: Vue.js, Angular, Svelte\n• Styling: Tailwind CSS, Styled Components, SASS, Material-UI\n\nBackend Development:\n• Languages: Node.js, Python, Go, Java\n• Frameworks: Express.js, NestJS, FastAPI, Django, Spring Boot\n• APIs: REST, GraphQL, gRPC, WebSockets\n\nDatabases:\n• SQL: PostgreSQL, MySQL, SQLite\n• NoSQL: MongoDB, Redis, DynamoDB, Cassandra\n• ORMs: Prisma, TypeORM, Sequelize, SQLAlchemy\n\nDevOps & Cloud:\n• Cloud Platforms: AWS (EC2, S3, Lambda, RDS, ECS, CloudFormation), Azure, GCP\n• Containers: Docker, Kubernetes, Docker Compose\n• CI/CD: Jenkins, GitHub Actions, GitLab CI, CircleCI\n• Infrastructure as Code: Terraform, Ansible, CloudFormation\n• Monitoring: Prometheus, Grafana, ELK Stack, DataDog\n\nTesting:\n• Unit Testing: Jest, Mocha, Pytest, JUnit\n• E2E Testing: Cypress, Selenium, Playwright\n• Load Testing: k6, JMeter\n\nTools & Others:\n• Version Control: Git, GitHub, GitLab\n• Project Management: Jira, Confluence, Trello\n• Message Queues: RabbitMQ, Apache Kafka\n• Security: OAuth2, JWT, SSL/TLS\n\n=== PROFESSIONAL EXPERIENCE ===\n\nSenior Full Stack Engineer | TechGiant Inc. | 2021 - Present\n• Architected and developed microservices-based e-commerce platform serving 2M+ users\n• Led migration from monolith to microservices, reducing deployment time by 70%\n• Implemented Kubernetes cluster for container orchestration\n• Mentored team of 5 junior developers\n• Technologies: React, Node.js, PostgreSQL, Docker, Kubernetes, AWS\n\nFull Stack Developer | StartupHub | 2019 - 2021\n• Built real-time collaboration platform using WebSockets and Redis\n• Implemented comprehensive CI/CD pipeline with automated testing\n• Reduced API response time by 60% through optimization\n• Technologies: Vue.js, Express, MongoDB, Docker, GitHub Actions\n\nSoftware Developer | Innovation Labs | 2017 - 2019\n• Developed customer-facing web applications\n• Integrated third-party APIs and payment gateways\n• Participated in Agile/Scrum ceremonies\n• Technologies: React, Django, PostgreSQL, AWS\n\n=== EDUCATION ===\nBachelor of Science in Computer Science\nMassachusetts Institute of Technology (MIT) | 2013 - 2017\nGPA: 3.8/4.0\n\nMaster of Science in Software Engineering (Part-time)\nStanford University | 2019 - 2021\n\n=== CERTIFICATIONS ===\n• AWS Certified Solutions Architect - Associate (2022)\n• Certified Kubernetes Administrator (CKA) (2021)\n• MongoDB Certified Developer (2020)\n• Google Cloud Professional Cloud Architect (2023)\n\n=== PROJECTS ===\n\n1. Cloud-Native E-Commerce Platform\n   • Microservices architecture with 15+ services\n   • Tech: Node.js, React, PostgreSQL, MongoDB, Docker, Kubernetes, AWS\n   • Handles 10K+ transactions daily\n\n2. DevOps Automation Suite\n   • Custom CI/CD platform for team workflows\n   • Tech: Python, Docker, Jenkins, Terraform\n   • Reduced deployment time from 2 hours to 10 minutes\n\n3. Real-Time Analytics Dashboard\n   • Live data visualization for business metrics\n   • Tech: React, Node.js, Redis, WebSockets, D3.js\n   • Processing 1M+ events per day\n\n=== SOFT SKILLS ===\nLeadership, Team Collaboration, Problem Solving, Communication, Agile Methodologies, Code Review, Technical Writing\n\n=== LANGUAGES ===\nEnglish (Native), Spanish (Fluent), Mandarin (Basic)",
+  "provider": "gemini",
+  "update_profile": true
+}
+
+###
+### ============================================================================
 ### TEST DIFFERENT USER FLOWS
 ### ============================================================================
 
@@ -295,3 +421,272 @@ Content-Type: application/json
   "email": "mike.marketing@example.com",
   "password": "marketpass123"
 }
+
+###
+### ============================================================================
+### PART 2 AI FEATURES - COMPREHENSIVE TESTING
+### ============================================================================
+
+### ============================================
+### Point 1: Smart Skill Extraction from CV
+### ============================================
+
+### Extract skills from CV text (Senior Developer)
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "Senior Full Stack Developer with 5 years of experience in React, Node.js, TypeScript, and AWS. Led a team of 3 developers to build scalable e-commerce platforms. AWS Certified Solutions Architect. Strong skills in agile methodologies, team leadership, and problem-solving.",
+  "provider": "gemini",
+  "update_profile": true
+}
+
+### Extract skills using Groq provider (Data Scientist)
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "Data Scientist with expertise in Python, TensorFlow, and machine learning. Published 3 research papers. Proficient in statistical analysis, deep learning, and data visualization.",
+  "provider": "groq",
+  "update_profile": false
+}
+
+###
+
+### ============================================
+### Point 4: AI-Generated Career Roadmap
+### ============================================
+
+### Generate a personalized learning roadmap (DevOps)
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "DevOps Engineering",
+  "provider": "gemini",
+  "include_current_skills": true
+}
+
+### Generate roadmap for Mobile Development
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "Mobile App Development",
+  "provider": "groq",
+  "include_current_skills": true
+}
+
+### Generate roadmap for Data Science
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "Data Science and Machine Learning",
+  "provider": "gemini",
+  "include_current_skills": false
+}
+
+### Get all saved roadmaps for user
+GET {{baseUrl}}/ai/roadmaps
+Authorization: Bearer {{token}}
+
+### Get specific roadmap by ID (replace 1 with actual roadmap_id from previous response)
+GET {{baseUrl}}/ai/roadmaps/1
+Authorization: Bearer {{token}}
+
+### Delete a roadmap (replace 1 with actual roadmap_id)
+DELETE {{baseUrl}}/ai/roadmaps/1
+Authorization: Bearer {{token}}
+
+###
+
+### ============================================
+### Point 5: Career Mentor Chatbot / Q&A
+### ============================================
+
+### Ask about skill transition
+POST {{baseUrl}}/ai/ask-mentor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "question": "What skills should I focus on to transition from frontend to full stack development?",
+  "provider": "gemini"
+}
+
+### Ask about career preparation
+POST {{baseUrl}}/ai/ask-mentor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "question": "How can I prepare for a senior developer role in the next 6 months?",
+  "provider": "gemini"
+}
+
+### Ask about learning strategies
+POST {{baseUrl}}/ai/ask-mentor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "question": "What are the best practices for learning data structures and algorithms?",
+  "provider": "groq"
+}
+
+### Ask about job search
+POST {{baseUrl}}/ai/ask-mentor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "question": "How should I approach my first technical interview as a junior developer?",
+  "provider": "gemini"
+}
+
+###
+
+### ============================================
+### Point 6: CV/Profile Assistant
+### ============================================
+
+### Generate professional summary for CV/LinkedIn
+POST {{baseUrl}}/ai/generate-summary
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "provider": "gemini"
+}
+
+### Generate summary using Groq
+POST {{baseUrl}}/ai/generate-summary
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "provider": "groq"
+}
+
+### Improve project descriptions with AI
+POST {{baseUrl}}/ai/improve-projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "projects": [
+    "Built a todo app with React",
+    "Created an e-commerce website",
+    "Developed a chat application"
+  ],
+  "provider": "gemini"
+}
+
+### Improve complex project descriptions
+POST {{baseUrl}}/ai/improve-projects
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "projects": [
+    "Made a portfolio site",
+    "Built REST API for mobile app",
+    "Created dashboard with charts"
+  ],
+  "provider": "groq"
+}
+
+### Get LinkedIn profile improvement suggestions
+POST {{baseUrl}}/ai/profile-suggestions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "linkedin",
+  "provider": "gemini"
+}
+
+### Get portfolio improvement suggestions
+POST {{baseUrl}}/ai/profile-suggestions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "portfolio",
+  "provider": "gemini"
+}
+
+### Get GitHub profile suggestions
+POST {{baseUrl}}/ai/profile-suggestions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "github",
+  "provider": "groq"
+}
+
+###
+
+### ============================================
+### Combined Workflow Test (Part 2 Full Flow)
+### ============================================
+
+### Step 1: Extract skills from comprehensive CV
+POST {{baseUrl}}/ai/extract-skills
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cv_text": "ALEX KUMAR\nFull Stack Developer | Cloud Engineer\n\nPROFESSIONAL SUMMARY\nPassionate Full Stack Developer with 4 years of experience building modern web applications. Strong expertise in React, Node.js, and AWS cloud services.\n\nTECHNICAL SKILLS\nFrontend: React, Next.js, TypeScript, Tailwind CSS, Redux\nBackend: Node.js, Express, Python, Django, REST APIs\nDatabases: PostgreSQL, MongoDB, Redis\nCloud & DevOps: AWS (EC2, S3, Lambda), Docker, Kubernetes, CI/CD\nTools: Git, VS Code, Postman, Jira\n\nEXPERIENCE\nSenior Developer at CloudTech (2022-Present)\n- Led development of microservices platform\n- Implemented automated testing and deployment\n- Mentored 3 junior developers\n\nSoftware Developer at WebStart (2020-2022)\n- Built responsive e-commerce applications\n- Optimized database queries for better performance\n- Collaborated with cross-functional teams\n\nEDUCATION\nB.Tech in Computer Science, IIT Delhi, 2020\n\nCERTIFICATIONS\nAWS Certified Developer Associate\nMongoDB Certified Developer\n\nSOFT SKILLS\nLeadership, Problem Solving, Communication, Agile/Scrum",
+  "provider": "gemini",
+  "update_profile": true
+}
+
+### Step 2: Generate personalized roadmap based on extracted skills
+POST {{baseUrl}}/ai/roadmap
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tech_stack": "Senior Full Stack Developer with Cloud Expertise",
+  "provider": "gemini",
+  "include_current_skills": true
+}
+
+### Step 3: Ask mentor about career progression
+POST {{baseUrl}}/ai/ask-mentor
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "question": "Based on my current skills in React and Node.js, what should I learn to become a senior full stack developer?",
+  "provider": "gemini"
+}
+
+### Step 4: Generate professional summary
+POST {{baseUrl}}/ai/generate-summary
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "provider": "gemini"
+}
+
+### Step 5: Get LinkedIn improvement suggestions
+POST {{baseUrl}}/ai/profile-suggestions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "platform": "linkedin",
+  "provider": "gemini"
+}
+
+###

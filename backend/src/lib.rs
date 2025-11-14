@@ -80,6 +80,7 @@
 
 use sqlx::PgPool;
 
+pub mod ai;
 pub mod errors;
 pub mod handlers;
 pub mod models;
@@ -93,4 +94,6 @@ pub mod auth;
 pub struct AppState {
     /// PostgreSQL database connection pool
     pub db_pool: PgPool,
+    /// AI service for intelligent features (optional)
+    pub ai_service: Option<std::sync::Arc<ai::AIService>>,
 }

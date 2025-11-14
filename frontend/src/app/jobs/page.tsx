@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { jobsApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { generateResponsibilities, generateRequirements, generateBenefits } from "@/lib/jobUtils"
 
 // Lazy load heavy components
 const JobDetailsModal = dynamic(() => import("@/components/JobDetailsModal"), {
@@ -54,9 +53,9 @@ export default function JobsPage() {
               : "Not specified",
             experience: experienceLevel,
             description: item.job.job_description || "",
-            responsibilities: generateResponsibilities(item.job.job_title, skills, experienceLevel),
-            requirements: generateRequirements(item.job.job_title, skills, experienceLevel),
-            benefits: generateBenefits(item.job.job_type, item.job.location),
+            responsibilities: item.job.responsibilities || [],
+            requirements: item.job.requirements || [],
+            benefits: item.job.benefits || [],
             matchScore: item.match_score,
             matchedSkills: item.matched_skills || [],
             missingSkills: item.missing_skills || [],
