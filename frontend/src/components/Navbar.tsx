@@ -7,6 +7,7 @@ import { Menu, X, Briefcase, BookOpen, User, LayoutDashboard, LogOut, Sparkles, 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import ThemeToggle from "@/components/ThemeToggle"
+import LanguageToggle from "@/components/LanguageToggle"
 import { logout, isAuthenticated } from "@/lib/api"
 
 export default function Navbar() {
@@ -100,6 +101,7 @@ export default function Navbar() {
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-2">
+            <LanguageToggle />
             <ThemeToggle />
 
             {isDemoPage ? (
