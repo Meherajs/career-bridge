@@ -33,7 +33,10 @@ export default function JobsPage() {
   useEffect(() => {
     const loadJobs = async () => {
       try {
+        console.log('🔍 Fetching jobs from API...')
         const jobsData = await jobsApi.getRecommendations()
+        console.log('✅ Jobs received:', jobsData)
+        console.log('📊 Jobs count:', jobsData.length)
         
         // Transform jobs data to match JobCard component
         const transformedJobs = jobsData.map((item: any) => {
@@ -69,9 +72,13 @@ export default function JobsPage() {
           }
         })
 
+        console.log('🔄 Transformed jobs count:', transformedJobs.length)
         setAllJobs(transformedJobs)
       } catch (err: any) {
+        console.error('❌ Error loading jobs:', err)
+        console.error('Error details:', err.message)
         if (err.message.includes('Session expired')) {
+          console.log('🔐 Redirecting to login...')
           router.push('/login')
         } else {
           toast.error('Failed to load jobs')

@@ -110,9 +110,13 @@ pub async fn extract_and_save_skills(
         .as_ref()
         .ok_or_else(|| AppError::ConfigurationError("AI service not configured".to_string()))?;
 
+    tracing::info!("Calling AI service to extract skills, update_profile={}", update_profile);
     let response = ai_service.process_action(ai_request).await?;
 
+    tracing::info!("AI response received, success={}", response.success);
+    
     if !response.success {
+        tracing::error!("AI extraction failed: {:?}", response.message);
         return Err(AppError::ExternalServiceError(
             response
                 .message
@@ -122,20 +126,35 @@ pub async fn extract_and_save_skills(
 
     // Extract the skills from the response
     let extracted_data = &response.data;
+    tracing::info!("Full AI response data: {}", serde_json::to_string_pretty(extracted_data).unwrap_or_default());
 
     // If update_profile is true, update the user's profile
     if update_profile {
-        // Extract technical skills
+        tracing::info!("Starting profile update with extracted data");
+        
+        // Extract technical skills - handle both object format and string array format
         let technical_skills: Vec<String> = extracted_data
             .get("technical_skills")
             .and_then(|v| v.as_array())
             .map(|arr| {
                 arr.iter()
-                    .filter_map(|skill| skill.get("name").and_then(|n| n.as_str()))
-                    .map(String::from)
+                    .filter_map(|skill| {
+                        // Try to get as object with "name" field
+                        if let Some(name) = skill.get("name").and_then(|n| n.as_str()) {
+                            Some(name.to_string())
+                        }
+                        // Fallback: try as plain string
+                        else if let Some(name) = skill.as_str() {
+                            Some(name.to_string())
+                        } else {
+                            None
+                        }
+                    })
                     .collect()
             })
             .unwrap_or_default();
+
+        tracing::info!("Extracted {} technical skills: {:?}", technical_skills.len(), technical_skills);
 
         // Extract roles
         let roles: Vec<String> = extracted_data
@@ -149,6 +168,8 @@ pub async fn extract_and_save_skills(
             })
             .unwrap_or_default();
 
+        tracing::info!("Extracted {} roles: {:?}", roles.len(), roles);
+
         // Combine existing skills with new ones (avoid duplicates)
         let user_id = auth_user.user_id;
         let existing_user =
@@ -156,6 +177,9 @@ pub async fn extract_and_save_skills(
                 .bind(&user_id)
                 .fetch_one(&state.db_pool)
                 .await?;
+
+        tracing::info!("Existing user skills before update: {:?}", existing_user.skills);
+        tracing::info!("Existing user roles before update: {:?}", existing_user.target_roles);
 
         let mut combined_skills = existing_user.skills.clone();
         for skill in technical_skills {
@@ -171,12 +195,16 @@ pub async fn extract_and_save_skills(
             }
         }
 
+        tracing::info!("Combined skills to save: {:?} (total: {})", combined_skills, combined_skills.len());
+        tracing::info!("Combined roles to save: {:?} (total: {})", combined_roles, combined_roles.len());
+
         // Update user profile with extracted skills and roles
-        sqlx::query(
+        let result = sqlx::query(
             "UPDATE users 
              SET skills = $1, 
                  target_roles = $2, 
-                 raw_cv_text = $3 
+                 raw_cv_text = $3,
+                 updated_at = CURRENT_TIMESTAMP
              WHERE id = $4",
         )
         .bind(&combined_skills)
@@ -187,8 +215,9 @@ pub async fn extract_and_save_skills(
         .await?;
 
         tracing::info!(
-            "Updated user profile with extracted skills for user: {}",
-            user_id
+            "Updated user profile with extracted skills for user: {}. Rows affected: {}",
+            user_id,
+            result.rows_affected()
         );
     }
 
@@ -208,7 +237,9 @@ pub async fn extract_and_save_skills(
 /// # Request Body
 /// ```json
 /// {
-///   "tech_stack": "Full Stack Web Development",
+///   "target_role": "Full Stack Developer",
+///   "timeframe_months": 6,
+///   "learning_hours_per_week": 10,
 ///   "provider": "gemini",
 ///   "include_current_skills": true
 /// }
@@ -218,10 +249,23 @@ pub async fn generate_roadmap(
     State(state): State<AppState>,
     Json(payload): Json<serde_json::Value>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    let tech_stack = payload
-        .get("tech_stack")
+    let target_role = payload
+        .get("target_role")
+        .or_else(|| payload.get("tech_stack"))
         .and_then(|v| v.as_str())
-        .ok_or_else(|| AppError::ValidationError("tech_stack is required".to_string()))?;
+        .ok_or_else(|| AppError::ValidationError("target_role is required".to_string()))?;
+
+    let timeframe_months = payload
+        .get("timeframe_months")
+        .and_then(|v| v.as_u64())
+        .map(|t| t as u32)
+        .unwrap_or(6);
+
+    let learning_hours_per_week = payload
+        .get("learning_hours_per_week")
+        .and_then(|v| v.as_u64())
+        .map(|h| h as u32)
+        .unwrap_or(10);
 
     let provider_str = payload
         .get("provider")
@@ -231,21 +275,30 @@ pub async fn generate_roadmap(
     let include_current_skills = payload
         .get("include_current_skills")
         .and_then(|v| v.as_bool())
-        .unwrap_or(false);
+        .unwrap_or(true);
 
     // Get user's current skills if requested
-    let current_skills = if include_current_skills {
+    let (current_skills, user_skills_json) = if include_current_skills {
         let user = sqlx::query_as::<_, crate::models::User>("SELECT * FROM users WHERE id = $1")
             .bind(auth_user.user_id)
             .fetch_one(&state.db_pool)
             .await?;
 
-        Some(user.skills.join(", "))
+        let skills_str = user.skills.join(", ");
+        let skills_json = serde_json::to_value(&user.skills).unwrap_or(json!([]));
+        (Some(skills_str), skills_json)
     } else {
-        None
+        (None, json!([]))
     };
 
-    // Create AI action request
+    // Create AI action request with comprehensive parameters
+    let mut parameters = serde_json::Map::new();
+    if let Some(ref skills) = current_skills {
+        parameters.insert("current_skills".to_string(), json!(skills));
+    }
+    parameters.insert("timeframe_months".to_string(), json!(timeframe_months));
+    parameters.insert("learning_hours_per_week".to_string(), json!(learning_hours_per_week));
+
     let ai_request = AIActionRequest {
         action: crate::ai::types::ActionType::GenerateRoadmap,
         provider: if provider_str == "groq" {
@@ -253,10 +306,8 @@ pub async fn generate_roadmap(
         } else {
             crate::ai::types::AIProvider::Gemini
         },
-        input: tech_stack.to_string(),
-        parameters: current_skills
-            .as_ref()
-            .map(|skills| json!({ "current_skills": skills })),
+        input: target_role.to_string(),
+        parameters: Some(serde_json::Value::Object(parameters)),
     };
 
     let ai_service = state
@@ -266,31 +317,59 @@ pub async fn generate_roadmap(
 
     let response = ai_service.process_action(ai_request).await?;
 
-    // Save roadmap to database for logged-in user (Part 2, Point 4 requirement)
+    if !response.success {
+        return Err(AppError::ExternalServiceError(
+            response.message.unwrap_or_else(|| "Roadmap generation failed".to_string())
+        ));
+    }
+
+    // Extract project suggestions and job application timing from AI response
+    let project_suggestions = response.data.get("project_suggestions")
+        .cloned()
+        .unwrap_or(json!([]));
+    
+    let job_application_timing = response.data.get("job_application_timing")
+        .and_then(|v| v.as_str())
+        .unwrap_or("Apply after completing 60-70% of the roadmap");
+
+    // Save roadmap to database with enhanced fields
     let provider_string = match response.provider {
         crate::ai::types::AIProvider::Gemini => "gemini",
         crate::ai::types::AIProvider::Groq => "groq",
     };
 
     let roadmap_id = sqlx::query_scalar::<_, i32>(
-        "INSERT INTO career_roadmaps (user_id, title, target_role, roadmap_data, ai_provider) 
-         VALUES ($1, $2, $3, $4, $5) 
-         RETURNING id",
+        "INSERT INTO career_roadmaps (
+            user_id, title, target_role, roadmap_data, ai_provider,
+            timeframe_months, learning_hours_per_week, current_skills,
+            project_suggestions, job_application_timing
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+        RETURNING id",
     )
     .bind(auth_user.user_id)
-    .bind(format!("Roadmap to {}", tech_stack))
-    .bind(tech_stack)
+    .bind(format!("Roadmap to {}", target_role))
+    .bind(target_role)
     .bind(&response.data)
     .bind(provider_string)
+    .bind(timeframe_months as i32)
+    .bind(learning_hours_per_week as i32)
+    .bind(&user_skills_json)
+    .bind(&project_suggestions)
+    .bind(job_application_timing)
     .fetch_one(&state.db_pool)
     .await?;
 
     Ok(Json(json!({
-        "success": response.success,
+        "success": true,
         "roadmap": response.data,
         "roadmap_id": roadmap_id,
         "provider": response.provider,
-        "message": "Roadmap generated and saved successfully"
+        "message": "Roadmap generated and saved successfully",
+        "metadata": {
+            "timeframe_months": timeframe_months,
+            "learning_hours_per_week": learning_hours_per_week,
+            "job_application_timing": job_application_timing
+        }
     })))
 }
 
@@ -588,7 +667,11 @@ pub async fn get_my_roadmaps(
     State(state): State<AppState>,
 ) -> Result<Json<serde_json::Value>, AppError> {
     let roadmaps = sqlx::query!(
-        "SELECT id, title, target_role, roadmap_data, ai_provider, created_at, updated_at 
+        "SELECT id, title, target_role, roadmap_data, ai_provider, 
+                timeframe_months, learning_hours_per_week, current_skills,
+                project_suggestions, job_application_timing, 
+                progress_percentage, completed_phases, notes,
+                created_at, updated_at 
          FROM career_roadmaps 
          WHERE user_id = $1 
          ORDER BY created_at DESC",
@@ -606,6 +689,14 @@ pub async fn get_my_roadmaps(
                 "target_role": r.target_role,
                 "roadmap": r.roadmap_data,
                 "ai_provider": r.ai_provider,
+                "timeframe_months": r.timeframe_months,
+                "learning_hours_per_week": r.learning_hours_per_week,
+                "current_skills": r.current_skills,
+                "project_suggestions": r.project_suggestions,
+                "job_application_timing": r.job_application_timing,
+                "progress_percentage": r.progress_percentage,
+                "completed_phases": r.completed_phases,
+                "notes": r.notes,
                 "created_at": r.created_at,
                 "updated_at": r.updated_at
             })
@@ -629,7 +720,11 @@ pub async fn get_roadmap_by_id(
     axum::extract::Path(roadmap_id): axum::extract::Path<i32>,
 ) -> Result<Json<serde_json::Value>, AppError> {
     let roadmap = sqlx::query!(
-        "SELECT id, title, target_role, roadmap_data, ai_provider, created_at, updated_at 
+        "SELECT id, title, target_role, roadmap_data, ai_provider,
+                timeframe_months, learning_hours_per_week, current_skills,
+                project_suggestions, job_application_timing,
+                progress_percentage, completed_phases, notes,
+                created_at, updated_at 
          FROM career_roadmaps 
          WHERE id = $1 AND user_id = $2",
         roadmap_id,
@@ -647,6 +742,14 @@ pub async fn get_roadmap_by_id(
                 "target_role": r.target_role,
                 "roadmap": r.roadmap_data,
                 "ai_provider": r.ai_provider,
+                "timeframe_months": r.timeframe_months,
+                "learning_hours_per_week": r.learning_hours_per_week,
+                "current_skills": r.current_skills,
+                "project_suggestions": r.project_suggestions,
+                "job_application_timing": r.job_application_timing,
+                "progress_percentage": r.progress_percentage,
+                "completed_phases": r.completed_phases,
+                "notes": r.notes,
                 "created_at": r.created_at,
                 "updated_at": r.updated_at
             }
@@ -680,4 +783,115 @@ pub async fn delete_roadmap(
         "success": true,
         "message": "Roadmap deleted successfully"
     })))
+}
+
+/// Update roadmap progress
+///
+/// # Endpoint
+/// `PUT /api/ai/roadmaps/:id/progress`
+///
+/// # Request Body
+/// ```json
+/// {
+///   "progress_percentage": 45,
+///   "completed_phases": [1, 2],
+///   "notes": "Completed first two phases, starting phase 3"
+/// }
+/// ```
+pub async fn update_roadmap_progress(
+    auth_user: AuthUser,
+    State(state): State<AppState>,
+    axum::extract::Path(roadmap_id): axum::extract::Path<i32>,
+    Json(payload): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let progress_percentage = payload
+        .get("progress_percentage")
+        .and_then(|v| v.as_i64())
+        .map(|p| p as i32);
+
+    let completed_phases: Option<Vec<i32>> = payload
+        .get("completed_phases")
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|p| p.as_i64())
+                .map(|p| p as i32)
+                .collect()
+        });
+
+    let notes = payload
+        .get("notes")
+        .and_then(|v| v.as_str());
+
+    // Build dynamic update query
+    let mut update_fields = Vec::new();
+    let mut query = String::from("UPDATE career_roadmaps SET updated_at = CURRENT_TIMESTAMP");
+    
+    if let Some(progress) = progress_percentage {
+        if progress < 0 || progress > 100 {
+            return Err(AppError::ValidationError("Progress percentage must be between 0 and 100".to_string()));
+        }
+        update_fields.push(format!(" progress_percentage = {}", progress));
+    }
+    
+    if completed_phases.is_some() {
+        update_fields.push(" completed_phases = $3".to_string());
+    }
+    
+    if notes.is_some() {
+        update_fields.push(" notes = $4".to_string());
+    }
+
+    if !update_fields.is_empty() {
+        query.push_str(", ");
+        query.push_str(&update_fields.join(", "));
+    }
+
+    query.push_str(" WHERE id = $1 AND user_id = $2 RETURNING id");
+
+    // Execute update
+    let result = if let Some(phases) = completed_phases {
+        if let Some(note_text) = notes {
+            sqlx::query_scalar::<_, i32>(&query)
+                .bind(roadmap_id)
+                .bind(auth_user.user_id)
+                .bind(&phases)
+                .bind(note_text)
+                .fetch_optional(&state.db_pool)
+                .await?
+        } else {
+            let query_no_notes = query.replace(", notes = $4", "");
+            sqlx::query_scalar::<_, i32>(&query_no_notes)
+                .bind(roadmap_id)
+                .bind(auth_user.user_id)
+                .bind(&phases)
+                .fetch_optional(&state.db_pool)
+                .await?
+        }
+    } else if let Some(note_text) = notes {
+        let query_no_phases = query.replace(", completed_phases = $3", "");
+        sqlx::query_scalar::<_, i32>(&query_no_phases)
+            .bind(roadmap_id)
+            .bind(auth_user.user_id)
+            .bind(note_text)
+            .fetch_optional(&state.db_pool)
+            .await?
+    } else {
+        // Only progress percentage
+        let simple_query = "UPDATE career_roadmaps SET progress_percentage = $3, updated_at = CURRENT_TIMESTAMP WHERE id = $1 AND user_id = $2 RETURNING id";
+        sqlx::query_scalar::<_, i32>(simple_query)
+            .bind(roadmap_id)
+            .bind(auth_user.user_id)
+            .bind(progress_percentage.unwrap_or(0))
+            .fetch_optional(&state.db_pool)
+            .await?
+    };
+
+    match result {
+        Some(_) => Ok(Json(json!({
+            "success": true,
+            "message": "Roadmap progress updated successfully"
+        }))),
+        None => Err(AppError::NotFound),
+    }
 }

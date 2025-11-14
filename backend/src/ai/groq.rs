@@ -164,44 +164,102 @@ Guidelines:
         self.generate(&prompt, None, Some(0.3), true).await
     }
 
-    /// Generate a learning roadmap for a tech stack
+    /// Generate a comprehensive learning roadmap for a tech stack
+    ///
+    /// # Arguments
+    /// * `tech_stack` - Target role or technology stack
+    /// * `current_skills` - User's current skills
+    /// * `timeframe_months` - Target timeframe in months
+    /// * `learning_hours_per_week` - Available learning hours per week
     pub async fn generate_roadmap(
         &self,
         tech_stack: &str,
         current_skills: Option<&str>,
+        timeframe_months: Option<u32>,
+        learning_hours_per_week: Option<u32>,
     ) -> Result<String, AppError> {
         let current_skills_text = current_skills
             .map(|s| format!("\n\nCurrent skills: {}", s))
-            .unwrap_or_default();
+            .unwrap_or_else(|| "\n\nCurrent skills: Beginner level".to_string());
+
+        let timeframe = timeframe_months.unwrap_or(6);
+        let hours_per_week = learning_hours_per_week.unwrap_or(10);
+        let total_learning_hours = timeframe * 4 * hours_per_week;
 
         let prompt = format!(
-            r#"You are an expert career advisor and learning path designer. Create a comprehensive learning roadmap for: {}{}
+            r#"You are an expert career advisor and learning path designer. Create a comprehensive, personalized learning roadmap for: {}{}
 
-Return a JSON object with this structure:
+Target Timeframe: {} months
+Available Learning Time: {} hours per week (approximately {} total hours)
+
+Return a JSON object with this EXACT structure:
 {{
   "stack_name": "Full Stack Development",
-  "prerequisites": ["Basic programming knowledge", "HTML/CSS basics"],
-  "estimated_duration": "6-8 months",
+  "prerequisites": ["Basic programming knowledge", "HTML/CSS basics", "Git version control"],
+  "estimated_duration": "6 months",
   "difficulty": "intermediate",
   "phases": [
     {{
       "phase": 1,
       "title": "Fundamentals",
-      "topics": ["JavaScript basics", "ES6+ features", "DOM manipulation"],
-      "duration": "4-6 weeks",
-      "resources": ["MDN Web Docs", "JavaScript.info"]
+      "timeline": "Month 1 (Weeks 1-4)",
+      "topics": ["JavaScript ES6+ fundamentals", "Asynchronous programming", "DOM manipulation"],
+      "technologies": ["JavaScript", "HTML5", "CSS3", "Git"],
+      "duration": "4 weeks",
+      "learning_goals": ["Master ES6 syntax", "Build interactive web pages", "Understand async/await"],
+      "resources": ["MDN Web Docs - JavaScript Guide", "JavaScript.info", "FreeCodeCamp JavaScript Course"]
+    }},
+    {{
+      "phase": 2,
+      "title": "Frontend Development",
+      "timeline": "Month 2 (Weeks 5-8)",
+      "topics": ["React fundamentals", "Component architecture", "State management"],
+      "technologies": ["React", "React Router", "Redux/Context API"],
+      "duration": "4 weeks",
+      "learning_goals": ["Build component-based applications", "Manage application state", "Implement routing"],
+      "resources": ["React Official Documentation", "React Tutorial - Scrimba", "React for Beginners - Wes Bos"]
     }}
-  ]
+  ],
+  "project_suggestions": [
+    {{
+      "title": "Personal Portfolio Website",
+      "description": "Build a responsive portfolio showcasing your projects with modern design",
+      "technologies": ["HTML", "CSS", "JavaScript", "Responsive Design"],
+      "difficulty": "beginner",
+      "estimated_hours": 20,
+      "recommended_phase": 1
+    }},
+    {{
+      "title": "Task Management App",
+      "description": "Full-featured todo app with categories, due dates, and local storage",
+      "technologies": ["React", "Local Storage API", "CSS Modules"],
+      "difficulty": "intermediate",
+      "estimated_hours": 30,
+      "recommended_phase": 2
+    }}
+  ],
+  "job_application_timing": "After completing Phase 4 (Month 4-5), start applying for internships and junior positions. By Phase 5, you should have portfolio projects ready for full job applications."
 }}
 
-Guidelines:
-- Create 4-6 phases with logical progression
-- Each phase should have specific, actionable topics
-- Include realistic time estimates
-- Suggest high-quality free and paid resources
-- Consider the user's current skills if provided
-- Return valid JSON only"#,
-            tech_stack, current_skills_text
+CRITICAL Guidelines:
+1. Create 4-6 phases that fit within the {} month timeframe
+2. Distribute learning hours realistically across phases based on {} hours/week availability
+3. Each phase should build on previous phases
+4. Include specific technologies and tools for each phase
+5. Suggest 3-5 practical project ideas at different difficulty levels
+6. Include clear learning goals for each phase
+7. Recommend high-quality FREE and paid resources (prioritize free options)
+8. Consider user's current skills - if they already know basics, start at intermediate level
+9. Specify WHEN to start applying for jobs/internships based on skill readiness
+10. Make timeline references clear (Week X-Y or Month Z)
+11. Ensure project suggestions align with learned technologies
+12. Return ONLY valid JSON, no markdown formatting or additional text
+
+IMPORTANT: Tailor the roadmap difficulty and pace based on:
+- User's current skill level (beginner needs more fundamentals)
+- Available time (more hours/week = faster progression possible)
+- Target timeframe (shorter timeframe = focus on essentials)"#,
+            tech_stack, current_skills_text, timeframe, hours_per_week, total_learning_hours, timeframe, hours_per_week
         );
 
         self.generate(&prompt, None, Some(0.7), true).await
@@ -218,20 +276,39 @@ Guidelines:
             .unwrap_or_default();
 
         let prompt = format!(
-            r#"You are a knowledgeable career advisor specializing in technology careers. Answer the following question:
+            r#"You are CareerBot, an AI career advisor specializing in youth employment and career development, aligned with UN Sustainable Development Goal 8 (Decent Work and Economic Growth).
+
+Your mission:
+- Support young professionals in finding meaningful, quality employment opportunities
+- Promote skill development that leads to decent work and economic growth
+- Provide actionable career guidance focused on sustainable employment
+- Empower youth to achieve their career potential
+
+IMPORTANT GUIDELINES:
+1. Always frame advice as SUGGESTIONS and GUIDANCE, never as guarantees
+2. Focus on youth employment opportunities, internships, entry-level roles, and career growth
+3. Emphasize skill development, continuous learning, and building a strong foundation
+4. Include disclaimers when appropriate (e.g., "This is a suggestion based on current trends...")
+5. Be realistic about job market conditions while remaining encouraging
+6. Promote decent work conditions, fair opportunities, and sustainable career paths
+7. MATCH YOUR RESPONSE LENGTH TO THE QUESTION: Simple greetings get short replies, complex questions get detailed answers
+8. For greetings or casual questions: Keep response under 2-3 sentences
+9. For career questions: Provide concise, focused answers (3-5 sentences unless complexity requires more)
 
 Question: {}{}
 
 Provide a helpful, accurate, and actionable answer. Include:
-- Direct answer to the question
-- Practical advice or steps
+- Direct answer to the question with focus on youth employment and career growth
+- Practical advice or steps aligned with SDG 8 principles
 - Related topics the user might find helpful
+- Clear indication that this is guidance/suggestion, not a guarantee
 
 Return a JSON object:
 {{
   "question": "the question",
-  "answer": "your detailed answer here",
-  "related_topics": ["topic1", "topic2", "topic3"]
+  "answer": "your answer here - keep it concise and match the question's complexity (2-3 sentences for simple questions, more for complex career queries. Include inline disclaimer if making predictions/suggestions)",
+  "related_topics": ["topic1", "topic2"] (only for career questions, empty array for greetings),
+  "disclaimer": "This guidance is based on current industry trends and best practices. Actual outcomes may vary based on individual circumstances, market conditions, and personal effort. This is a suggestion to help guide your career decisions, not a guarantee of specific results." (only include for career advice questions, null for simple greetings)
 }}
 
 Return valid JSON only."#,

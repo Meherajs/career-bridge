@@ -118,7 +118,10 @@ frontend/
 │   │   ├── TestimonialScroll.tsx    # Testimonial carousel
 │   │   ├── ThemeProvider.tsx        # Theme context
 │   │   ├── ThemeToggle.tsx          # Dark/light mode toggle
-│   │   └── PageTransition.tsx       # Page transition effects
+│   │   ├── PageTransition.tsx       # Page transition effects
+│   │   ├── CVUpload.tsx             # CV/Resume upload component
+│   │   ├── CVExport.tsx             # CV generation and PDF export
+│   │   └── ProfileAssistant.tsx     # AI-powered profile enhancement
 │   │
 │   ├── lib/                   # Utilities and helpers
 │   │   ├── api.ts            # API client functions
@@ -197,9 +200,26 @@ npm run lint      # Run ESLint code quality checks
 ### 👥 Profile Management
 - Comprehensive profile editor
 - Skills and experience management
-- CV upload and management
+- CV upload and management (PDF with text extraction)
+- Manual CV text input option
 - Profile visibility settings
 - Account preferences
+
+### 🤖 AI-Powered CV/Profile Assistant
+- **Professional Summary Generator** - Create compelling CV summaries
+- **Project Description Enhancer** - Transform basic projects into impactful bullet points
+- **LinkedIn/Portfolio Suggestions** - Get personalized improvement tips
+- **CV Export & Print** - Generate clean, professional CV layouts
+- **PDF Export** - Save your CV as PDF using browser's print function
+- **AI Mentor Chatbot** - Ask career questions and get expert advice
+- **Career Roadmap Generator** - Get personalized learning paths with timelines
+
+### 📊 Career Development
+- AI-powered career roadmap generation
+- Skill gap analysis with recommendations
+- Progress tracking for learning resources
+- Job application timeline guidance
+- Personalized project suggestions
 
 ### 🎨 UI/UX Features
 - Dark/light theme toggle with persistence

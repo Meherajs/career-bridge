@@ -1,4 +1,3 @@
-
 @baseUrl = http://127.0.0.1:3000/api
 @token = {{login.response.body.token}}
 
@@ -93,6 +92,7 @@ Content-Type: application/pdf
 
 < ../resume.pdf
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
 ###
 ### ============================================================================
 ### 3. JOB RECOMMENDATIONS
@@ -108,6 +108,10 @@ Authorization: Bearer {{token}}
 
 ### 3.3 Get Job Recommendations (Filtered by Job Type)
 GET {{baseUrl}}/jobs/recommendations?job_type=full_time&limit=10
+Authorization: Bearer {{token}}
+
+### 3.4 Get Job Recommendations (Multiple Filters)
+GET {{baseUrl}}/jobs/recommendations?experience_level=mid&job_type=full_time&limit=3
 Authorization: Bearer {{token}}
 
 ###
@@ -136,6 +140,10 @@ Authorization: Bearer {{token}}
 GET {{baseUrl}}/skill-gap/Data Analyst
 Authorization: Bearer {{token}}
 
+### 5.4 Analyze Skill Gap for DevOps Engineer
+GET {{baseUrl}}/skill-gap/DevOps Engineer
+Authorization: Bearer {{token}}
+
 ###
 ### ============================================================================
 ### 6. APPLICATION TRACKING
@@ -155,7 +163,7 @@ Content-Type: application/json
 GET {{baseUrl}}/applications
 Authorization: Bearer {{token}}
 
-### 6.3 Update Application Status
+### 6.3 Update Application Status - Interview
 PUT {{baseUrl}}/applications/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -163,6 +171,26 @@ Content-Type: application/json
 {
   "status": "interview_scheduled",
   "notes": "Phone interview scheduled for Monday at 10am"
+}
+
+### 6.4 Update Application Status - Offer
+PUT {{baseUrl}}/applications/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "offer_received",
+  "notes": "Received offer! Salary: $85k. Need to respond by Friday."
+}
+
+### 6.5 Update Application Status - Rejected
+PUT {{baseUrl}}/applications/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "rejected",
+  "notes": "Not selected for this position. Will apply again in 6 months."
 }
 
 ###
@@ -174,7 +202,16 @@ Content-Type: application/json
 POST {{baseUrl}}/progress/resource/1/start
 Authorization: Bearer {{token}}
 
-### 7.2 Update Progress
+### 7.2 Update Progress (25%)
+PUT {{baseUrl}}/progress/resource/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "completion_percentage": 25
+}
+
+### 7.3 Update Progress (50%)
 PUT {{baseUrl}}/progress/resource/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -183,7 +220,16 @@ Content-Type: application/json
   "completion_percentage": 50
 }
 
-### 7.3 Complete Resource (100%)
+### 7.4 Update Progress (75%)
+PUT {{baseUrl}}/progress/resource/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "completion_percentage": 75
+}
+
+### 7.5 Complete Resource (100%)
 PUT {{baseUrl}}/progress/resource/1
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -192,204 +238,24 @@ Content-Type: application/json
   "completion_percentage": 100
 }
 
-### 7.4 Get My Progress
+### 7.6 Get My Progress (All Resources)
 GET {{baseUrl}}/progress
 Authorization: Bearer {{token}}
 
 ###
 ### ============================================================================
-### 8. AI-POWERED FEATURES
+### 8. COMPLETE USER WORKFLOW TEST
 ### ============================================================================
-
-### ----------------------------------------
-### 8.1 AI Skill Extraction
-### ----------------------------------------
-
-### Extract Skills from CV (with Profile Update)
-POST {{baseUrl}}/ai/extract-skills
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "cv_text": "Senior Full Stack Developer with 5 years of experience in React, Node.js, TypeScript, and AWS. Led a team of 3 developers to build scalable e-commerce platforms. AWS Certified Solutions Architect. Strong skills in agile methodologies, team leadership, and problem-solving.",
-  "provider": "gemini",
-  "update_profile": true
-}
-
-### Extract Skills (Preview Only - No Update)
-POST {{baseUrl}}/ai/extract-skills
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "cv_text": "Data Scientist with expertise in Python, TensorFlow, and machine learning. Published 3 research papers.",
-  "provider": "groq",
-  "update_profile": false
-}
-
-### ----------------------------------------
-### 8.2 Career Roadmap Generation
-### ----------------------------------------
-
-### Generate Personalized Roadmap (Using Current Skills)
-POST {{baseUrl}}/ai/roadmap
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "tech_stack": "DevOps Engineering",
-  "provider": "gemini",
-  "include_current_skills": true
-}
-
-### Generate Roadmap for Specific Tech Stack
-POST {{baseUrl}}/ai/roadmap
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "tech_stack": "Mobile App Development",
-  "provider": "groq",
-  "include_current_skills": false
-}
-
-### Get All Saved Roadmaps
-GET {{baseUrl}}/ai/roadmaps
-Authorization: Bearer {{token}}
-
-### Get Specific Roadmap by ID
-GET {{baseUrl}}/ai/roadmaps/1
-Authorization: Bearer {{token}}
-
-### Delete Roadmap
-DELETE {{baseUrl}}/ai/roadmaps/1
-Authorization: Bearer {{token}}
-
-### ----------------------------------------
-### 8.3 Career Mentor Chatbot
-### ----------------------------------------
-
-### Ask Career Question
-POST {{baseUrl}}/ai/ask-mentor
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "question": "What skills should I focus on to transition from frontend to full stack development?",
-  "provider": "gemini"
-}
-
-### Ask About Career Preparation
-POST {{baseUrl}}/ai/ask-mentor
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "question": "How can I prepare for a senior developer role in the next 6 months?",
-  "provider": "gemini"
-}
-
-### ----------------------------------------
-### 8.4 CV/Profile Assistant
-### ----------------------------------------
-
-### Generate Professional Summary
-POST {{baseUrl}}/ai/generate-summary
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "provider": "gemini"
-}
-
-### Improve Project Descriptions
-POST {{baseUrl}}/ai/improve-projects
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "projects": [
-    "Built a todo app with React",
-    "Created an e-commerce website",
-    "Developed a chat application"
-  ],
-  "provider": "gemini"
-}
-
-### Get Profile Improvement Suggestions (LinkedIn)
-POST {{baseUrl}}/ai/profile-suggestions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "platform": "linkedin",
-  "provider": "gemini"
-}
-
-### Get Profile Improvement Suggestions (Portfolio)
-POST {{baseUrl}}/ai/profile-suggestions
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "platform": "portfolio",
-  "provider": "gemini"
-}
-
-### ----------------------------------------
-### 8.5 Generic AI Action (Flexible Endpoint)
-### ----------------------------------------
-
-### Generic AI - Extract Skills
-POST {{baseUrl}}/ai/action
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "extract_skills",
-  "provider": "gemini",
-  "input": "John Doe - Senior Software Engineer with expertise in React, Node.js, and AWS."
-}
-
-### Generic AI - Generate Roadmap
-POST {{baseUrl}}/ai/action
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "generate_roadmap",
-  "provider": "gemini",
-  "input": "Full Stack Web Development",
-  "parameters": {
-    "current_skills": "HTML, CSS, JavaScript basics"
-  }
-}
-
-### Generic AI - Ask Question
-POST {{baseUrl}}/ai/action
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-  "action": "ask_question",
-  "provider": "gemini",
-  "input": "What are the best programming languages to learn for web development in 2025?"
-}
-
-###
-### ============================================================================
-### 9. COMPLETE USER WORKFLOW TEST
-### ============================================================================
-### This section demonstrates a complete user journey through the platform
+### This section demonstrates a complete user journey through core features
 
 ### Step 1: Register New User
 POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
-  "full_name": "Alex Kumar",
-  "email": "alex.kumar@example.com",
-  "password": "alexpass123"
+  "full_name": "Sarah Johnson",
+  "email": "sarah.johnson@example.com",
+  "password": "sarahpass123"
 }
 
 ### Step 2: Login
@@ -398,75 +264,65 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "alex.kumar@example.com",
-  "password": "alexpass123"
+  "email": "sarah.johnson@example.com",
+  "password": "sarahpass123"
 }
 
-### Step 3: Extract Skills from CV
-POST {{baseUrl}}/ai/extract-skills
-Authorization: Bearer {{workflowLogin.response.body.token}}
-Content-Type: application/json
-
-{
-  "cv_text": "Full Stack Developer with 4 years of experience. Skills: React, Node.js, TypeScript, PostgreSQL, Docker, AWS. Led development of microservices platform.",
-  "provider": "gemini",
-  "update_profile": true
-}
-
-### Step 4: Complete Profile
+### Step 3: Complete Profile
 POST {{baseUrl}}/profile/complete
 Authorization: Bearer {{workflowLogin.response.body.token}}
 Content-Type: application/json
 
 {
-  "education_level": "B.Tech in Computer Science",
-  "experience_level": "mid",
+  "education_level": "B.S. Computer Science",
+  "experience_level": "junior",
   "preferred_track": "web_development",
-  "skills": ["React", "Node.js", "TypeScript", "PostgreSQL", "Docker", "AWS"],
-  "projects": ["Microservices Platform", "E-commerce Website", "Real-time Chat App"],
-  "target_roles": ["Senior Full Stack Developer", "Tech Lead"]
+  "skills": ["HTML", "CSS", "JavaScript", "React"],
+  "projects": ["Portfolio Website", "Todo App"],
+  "target_roles": ["Frontend Developer", "Web Developer"]
 }
 
-### Step 5: Generate Career Roadmap
-POST {{baseUrl}}/ai/roadmap
-Authorization: Bearer {{workflowLogin.response.body.token}}
-Content-Type: application/json
-
-{
-  "tech_stack": "Senior Full Stack Developer",
-  "provider": "gemini",
-  "include_current_skills": true
-}
-
-### Step 6: Get Job Recommendations
-GET {{baseUrl}}/jobs/recommendations?limit=5
+### Step 4: Get Job Recommendations
+GET {{baseUrl}}/jobs/recommendations?experience_level=junior&limit=5
 Authorization: Bearer {{workflowLogin.response.body.token}}
 
-### Step 7: Analyze Skill Gap
-GET {{baseUrl}}/skill-gap/Senior Full Stack Developer
+### Step 5: Analyze Skill Gap
+GET {{baseUrl}}/skill-gap/Frontend Developer
 Authorization: Bearer {{workflowLogin.response.body.token}}
 
-### Step 8: Get Learning Resources
+### Step 6: Get Learning Resources
 GET {{baseUrl}}/learning/recommendations
 Authorization: Bearer {{workflowLogin.response.body.token}}
 
-### Step 9: Ask Career Mentor
-POST {{baseUrl}}/ai/ask-mentor
+### Step 7: Start Learning Resource
+POST {{baseUrl}}/progress/resource/1/start
+Authorization: Bearer {{workflowLogin.response.body.token}}
+
+### Step 8: Create Job Application
+POST {{baseUrl}}/applications
 Authorization: Bearer {{workflowLogin.response.body.token}}
 Content-Type: application/json
 
 {
-  "question": "What skills should I focus on to become a tech lead?",
-  "provider": "gemini"
+  "job_id": 1,
+  "notes": "Applied for Frontend Developer position. Perfect match for my skills!"
 }
 
-### Step 10: Generate Professional Summary
-POST {{baseUrl}}/ai/generate-summary
+### Step 9: Get My Applications
+GET {{baseUrl}}/applications
+Authorization: Bearer {{workflowLogin.response.body.token}}
+
+### Step 10: Update Learning Progress
+PUT {{baseUrl}}/progress/resource/1
 Authorization: Bearer {{workflowLogin.response.body.token}}
 Content-Type: application/json
 
 {
-  "provider": "gemini"
+  "completion_percentage": 50
 }
+
+### Step 11: Check Overall Progress
+GET {{baseUrl}}/progress
+Authorization: Bearer {{workflowLogin.response.body.token}}
 
 ###

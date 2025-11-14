@@ -92,6 +92,20 @@ See `BACKEND_CHANGES.md` for migration details.
 - Automatic completion detection
 - View learning history
 
+### 🤖 AI-Powered Features (Gemini & Groq)
+- **Professional Summary Generator** - AI creates compelling CV summaries
+- **Project Description Enhancer** - Transforms basic descriptions into impactful bullet points
+- **Profile Improvement Suggestions** - Personalized LinkedIn/Portfolio recommendations
+- **Career Roadmap Generator** - Personalized learning paths with timelines and projects
+- **Career Mentor Chatbot** - Ask career-related questions and get expert advice
+- **Skill Extraction from CV** - Automatically extract and categorize skills from uploaded CVs
+
+### 📄 CV/Resume Management
+- **PDF Upload & Text Extraction** - Upload CV and auto-extract text content
+- **Professional CV Export** - Generate clean, print-ready CV layouts
+- **PDF Export** - Print to PDF for easy sharing and applications
+- **AI-Enhanced Content** - Improve summaries, projects, and descriptions
+
 ## 🚀 Quick Start
 
 ```bash
@@ -501,6 +515,98 @@ Content-Type: application/json
 GET /api/progress
 ```
 
+### AI-Powered Endpoints
+
+#### Generate Professional Summary
+```http
+POST /api/ai/generate-summary
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "provider": "gemini"
+}
+```
+
+**Response**: AI-generated professional summary based on your profile.
+
+#### Improve Project Descriptions
+```http
+POST /api/ai/improve-projects
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "projects": [
+    "Built a todo app",
+    "Created a portfolio website"
+  ],
+  "provider": "gemini"
+}
+```
+
+**Response**: Array of improved project descriptions with action verbs and impact.
+
+#### Get Profile Improvement Suggestions
+```http
+POST /api/ai/profile-suggestions
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "platform": "linkedin",
+  "provider": "gemini"
+}
+```
+
+**Response**: 5 personalized suggestions to improve your LinkedIn or portfolio.
+
+#### Generate Career Roadmap
+```http
+POST /api/ai/roadmap
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "target_role": "Full Stack Developer",
+  "timeframe_months": 6,
+  "learning_hours_per_week": 10,
+  "include_current_skills": true,
+  "provider": "gemini"
+}
+```
+
+**Response**: Personalized learning roadmap with phases, resources, and timeline.
+
+#### Ask Career Mentor
+```http
+POST /api/ai/ask-mentor
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "question": "What should I learn to become a backend developer?",
+  "provider": "gemini"
+}
+```
+
+**Response**: AI-powered career advice based on your profile and question.
+
+#### Extract Skills from CV
+```http
+POST /api/ai/extract-skills
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "cv_text": "Your CV content here...",
+  "provider": "gemini",
+  "update_profile": true
+}
+```
+
+**Response**: Extracted technical skills, soft skills, roles, tools, and certifications.
+
 ## 🗄 Database Schema
 
 ### Tables
@@ -578,6 +684,24 @@ GET /api/progress
 - `skill_name` (VARCHAR(255))
 - `proficiency_level` (INTEGER, 1-10)
 - `assessed_at` (TIMESTAMPTZ)
+
+#### career_roadmaps
+- `id` (SERIAL, PK)
+- `user_id` (UUID, FK → users)
+- `title` (TEXT)
+- `target_role` (TEXT)
+- `roadmap_data` (JSONB) - Complete roadmap structure
+- `ai_provider` (VARCHAR(50)) - 'gemini' or 'groq'
+- `timeframe_months` (INTEGER)
+- `learning_hours_per_week` (INTEGER)
+- `current_skills` (JSONB) - Skills at roadmap creation
+- `project_suggestions` (JSONB) - Recommended projects
+- `job_application_timing` (TEXT) - When to start applying
+- `progress_percentage` (INTEGER, default: 0)
+- `completed_phases` (INTEGER[])
+- `notes` (TEXT)
+- `created_at` (TIMESTAMPTZ)
+- `updated_at` (TIMESTAMPTZ)
 
 ### Enums
 - `experience_level`: fresher, junior, mid

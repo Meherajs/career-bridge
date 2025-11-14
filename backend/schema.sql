@@ -117,12 +117,22 @@ CREATE TABLE career_roadmaps (
     duration_weeks INTEGER,
     roadmap_data JSONB NOT NULL,
     ai_provider VARCHAR(50) NOT NULL,
+    timeframe_months INTEGER DEFAULT 6,
+    learning_hours_per_week INTEGER DEFAULT 10,
+    current_skills JSONB DEFAULT '[]'::jsonb,
+    project_suggestions JSONB DEFAULT '[]'::jsonb,
+    job_application_timing TEXT,
+    progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+    completed_phases INTEGER[] DEFAULT ARRAY[]::INTEGER[],
+    notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_roadmaps_user_id ON career_roadmaps(user_id);
 CREATE INDEX idx_roadmaps_created_at ON career_roadmaps(created_at DESC);
+CREATE INDEX idx_roadmaps_progress ON career_roadmaps(user_id, progress_percentage);
+CREATE INDEX idx_roadmaps_timeframe ON career_roadmaps(timeframe_months);
 
 -- Function to update updated_at timestamp for roadmaps
 CREATE OR REPLACE FUNCTION update_roadmap_timestamp()

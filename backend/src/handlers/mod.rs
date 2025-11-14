@@ -105,6 +105,10 @@ pub fn create_router(app_state: AppState) -> Router {
             "/api/ai/roadmaps/{id}",
             axum::routing::delete(ai::delete_roadmap),
         )
+        .route(
+            "/api/ai/roadmaps/{id}/progress",
+            put(ai::update_roadmap_progress),
+        )
         // Protected routes - CV/Profile Assistant (Point 6)
         .route(
             "/api/ai/generate-summary",

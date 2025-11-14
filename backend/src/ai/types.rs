@@ -102,6 +102,10 @@ pub struct TechStackRoadmap {
     pub estimated_duration: String,
     /// Difficulty level
     pub difficulty: String,
+    /// Project ideas to build during learning
+    pub project_suggestions: Vec<ProjectSuggestion>,
+    /// When to start applying for jobs/internships
+    pub job_application_timing: String,
 }
 
 /// A phase in the learning roadmap
@@ -113,10 +117,33 @@ pub struct LearningPhase {
     pub title: String,
     /// Topics to learn in this phase
     pub topics: Vec<String>,
+    /// Technologies/tools to learn
+    pub technologies: Vec<String>,
     /// Estimated duration for this phase
     pub duration: String,
+    /// Weeks/months reference (e.g., "Week 1-4" or "Month 1")
+    pub timeline: String,
     /// Resources (optional)
     pub resources: Option<Vec<String>>,
+    /// Specific learning goals for this phase
+    pub learning_goals: Vec<String>,
+}
+
+/// Project suggestion for building during learning
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProjectSuggestion {
+    /// Project title
+    pub title: String,
+    /// Project description
+    pub description: String,
+    /// Technologies used in the project
+    pub technologies: Vec<String>,
+    /// Difficulty level
+    pub difficulty: String,
+    /// Estimated time to complete
+    pub estimated_hours: u32,
+    /// Which phase this project belongs to
+    pub recommended_phase: u32,
 }
 
 /// Generic question-answer response
