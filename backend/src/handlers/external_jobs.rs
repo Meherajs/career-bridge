@@ -5,10 +5,10 @@
 //! - Bangladesh government portals
 //! - Local job boards
 
+use crate::AppState;
 use crate::auth::AuthUser;
 use crate::errors::AppResult;
-use crate::AppState;
-use axum::{extract::State, Json};
+use axum::{Json, extract::State};
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info, warn};
 
@@ -70,7 +70,7 @@ struct ReliefWebCountry {
     name: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 struct ReliefWebDate {
     #[serde(default)]
     created: String,
