@@ -510,14 +510,22 @@ export const aiApi = {
     return await response.json();
   },
 
-  // Generate career roadmap
-  generateRoadmap: async (techStack: string, includeCurrentSkills: boolean = true, provider: 'gemini' | 'groq' = 'gemini'): Promise<any> => {
+  // Generate career roadmap with enhanced parameters
+  generateRoadmap: async (
+    targetRole: string, 
+    timeframeMonths: number = 6,
+    learningHoursPerWeek: number = 10,
+    includeCurrentSkills: boolean = true, 
+    provider: 'gemini' | 'groq' = 'gemini'
+  ): Promise<any> => {
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/ai/roadmap`, {
       method: 'POST',
       headers: getHeaders(token),
       body: JSON.stringify({
-        tech_stack: techStack,
+        target_role: targetRole,
+        timeframe_months: timeframeMonths,
+        learning_hours_per_week: learningHoursPerWeek,
         include_current_skills: includeCurrentSkills,
         provider
       }),
@@ -572,6 +580,32 @@ export const aiApi = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete roadmap');
+    }
+
+    return await response.json();
+  },
+
+  // Update roadmap progress
+  updateRoadmapProgress: async (
+    id: number, 
+    progressPercentage?: number,
+    completedPhases?: number[],
+    notes?: string
+  ): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/ai/roadmaps/${id}/progress`, {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify({
+        progress_percentage: progressPercentage,
+        completed_phases: completedPhases,
+        notes: notes
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update roadmap progress');
     }
 
     return await response.json();

@@ -33,16 +33,10 @@ export default function JobsPage() {
   useEffect(() => {
     const loadJobs = async () => {
       try {
-        console.log('Fetching job recommendations...')
-        const jobsData = await jobsApi.getRecommendations({ limit: 50 })
-        console.log('Received jobs data:', jobsData)
-        
-        if (!jobsData || jobsData.length === 0) {
-          console.warn('No jobs returned from API')
-          setAllJobs([])
-          toast.error('No jobs available at the moment. Please check back later or complete your profile for better matches.')
-          return
-        }
+        console.log('🔍 Fetching jobs from API...')
+        const jobsData = await jobsApi.getRecommendations()
+        console.log('✅ Jobs received:', jobsData)
+        console.log('📊 Jobs count:', jobsData.length)
         
         // Transform jobs data to match JobCard component
         const transformedJobs = jobsData.map((item: any) => {
@@ -78,12 +72,13 @@ export default function JobsPage() {
           }
         })
 
-        console.log('Transformed jobs:', transformedJobs.length)
+        console.log('🔄 Transformed jobs count:', transformedJobs.length)
         setAllJobs(transformedJobs)
       } catch (err: any) {
-        console.error('Error loading jobs:', err)
+        console.error('❌ Error loading jobs:', err)
+        console.error('Error details:', err.message)
         if (err.message.includes('Session expired')) {
-          toast.error('Session expired. Please login again.')
+          console.log('🔐 Redirecting to login...')
           router.push('/login')
         } else if (err.message.includes('Failed to fetch') || err.message.includes('Network')) {
           toast.error('Unable to connect to server. Please ensure the backend is running.')

@@ -6,11 +6,14 @@
 
 CareerBridge connects job seekers with opportunities that match their skills and career goals. Built with modern technologies, the platform offers:
 
-- **Smart Job Matching** - Get personalized job recommendations based on your skills and experience
+- **Smart Job Matching** - Get personalized job recommendations with detailed match scores
+- **AI Career Assistant** - Generate professional summaries, improve project descriptions, get profile tips
+- **CV Management** - Upload, generate, and export professional CVs as PDF
 - **Skill Gap Analysis** - Discover what skills you need and get learning recommendations
+- **Career Roadmaps** - AI-generated personalized learning paths with timelines
 - **Progress Tracking** - Monitor your job applications and learning journey
 - **Multiple Login Options** - Sign in with email, Google, or GitHub
-- **Beautiful Interface** - Modern dark theme with smooth animations
+- **Beautiful Interface** - Modern dark/light themes with smooth animations
 
 ### 🎯 Who Is This For?
 - 🎓 **Students** seeking internships and career guidance
@@ -43,6 +46,17 @@ CareerBridge connects job seekers with opportunities that match their skills and
 - See which skills employers are looking for
 - Get a match percentage for different job positions
 - Track your improvement over time
+- **AI-powered career roadmaps** with personalized learning paths
+- Project suggestions to build your portfolio
+- Job application timing guidance
+
+### 🤖 AI-Powered CV/Profile Assistant
+- **Professional Summary Generator** - Create compelling CV summaries instantly
+- **Project Description Enhancer** - Transform basic descriptions into impactful bullet points
+- **LinkedIn/Portfolio Tips** - Get 5 personalized improvement suggestions
+- **CV Export & Print** - Generate clean, professional CV layouts (PDF-ready)
+- **Career Mentor Chatbot** - Ask career questions and get expert advice
+- **Smart Skill Extraction** - Upload CV and automatically extract skills
 
 ### 🎨 Modern Experience
 - Clean, intuitive interface with dark/light themes

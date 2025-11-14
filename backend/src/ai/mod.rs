@@ -86,7 +86,22 @@ impl AIService {
                     .and_then(|p| p.get("current_skills"))
                     .and_then(|s| s.as_str());
                 
-                let result = client.generate_roadmap(&request.input, current_skills).await?;
+                let timeframe_months = request.parameters.as_ref()
+                    .and_then(|p| p.get("timeframe_months"))
+                    .and_then(|t| t.as_u64())
+                    .map(|t| t as u32);
+                
+                let learning_hours_per_week = request.parameters.as_ref()
+                    .and_then(|p| p.get("learning_hours_per_week"))
+                    .and_then(|h| h.as_u64())
+                    .map(|h| h as u32);
+                
+                let result = client.generate_roadmap(
+                    &request.input,
+                    current_skills,
+                    timeframe_months,
+                    learning_hours_per_week
+                ).await?;
                 let parsed: serde_json::Value = serde_json::from_str(&result)
                     .map_err(|e| AppError::ExternalServiceError(format!("Failed to parse AI response: {}", e)))?;
                 Ok(parsed)
@@ -120,7 +135,13 @@ impl AIService {
 #[async_trait::async_trait]
 trait AIClient {
     async fn extract_skills(&self, cv_text: &str) -> Result<String, AppError>;
-    async fn generate_roadmap(&self, tech_stack: &str, current_skills: Option<&str>) -> Result<String, AppError>;
+    async fn generate_roadmap(
+        &self,
+        tech_stack: &str,
+        current_skills: Option<&str>,
+        timeframe_months: Option<u32>,
+        learning_hours_per_week: Option<u32>,
+    ) -> Result<String, AppError>;
     async fn answer_question(&self, question: &str, context: Option<&str>) -> Result<String, AppError>;
     async fn generate_content(&self, content_type: &str, input: &str, parameters: Option<serde_json::Value>) -> Result<String, AppError>;
 }
@@ -131,8 +152,14 @@ impl AIClient for GeminiClient {
         self.extract_skills(cv_text).await
     }
 
-    async fn generate_roadmap(&self, tech_stack: &str, current_skills: Option<&str>) -> Result<String, AppError> {
-        self.generate_roadmap(tech_stack, current_skills).await
+    async fn generate_roadmap(
+        &self,
+        tech_stack: &str,
+        current_skills: Option<&str>,
+        timeframe_months: Option<u32>,
+        learning_hours_per_week: Option<u32>,
+    ) -> Result<String, AppError> {
+        GeminiClient::generate_roadmap(self, tech_stack, current_skills, timeframe_months, learning_hours_per_week).await
     }
 
     async fn answer_question(&self, question: &str, context: Option<&str>) -> Result<String, AppError> {
@@ -150,8 +177,14 @@ impl AIClient for GroqClient {
         self.extract_skills(cv_text).await
     }
 
-    async fn generate_roadmap(&self, tech_stack: &str, current_skills: Option<&str>) -> Result<String, AppError> {
-        self.generate_roadmap(tech_stack, current_skills).await
+    async fn generate_roadmap(
+        &self,
+        tech_stack: &str,
+        current_skills: Option<&str>,
+        timeframe_months: Option<u32>,
+        learning_hours_per_week: Option<u32>,
+    ) -> Result<String, AppError> {
+        GroqClient::generate_roadmap(self, tech_stack, current_skills, timeframe_months, learning_hours_per_week).await
     }
 
     async fn answer_question(&self, question: &str, context: Option<&str>) -> Result<String, AppError> {

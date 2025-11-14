@@ -72,5 +72,13 @@ INSERT INTO learning_resources (title, platform, url, related_skills, cost) VALU
 ('AWS Fundamentals', 'AWS Training', 'https://aws.training', ARRAY['AWS', 'Cloud Computing', 'Infrastructure'], 'free'),
 ('REST API Design', 'Udemy', 'https://udemy.com/rest-api', ARRAY['REST APIs', 'API Design', 'Backend Development'], 'paid');
 
+-- Note: Sample career roadmap data can be generated through the application
+-- using the POST /api/ai/roadmap endpoint with user authentication
+-- Example roadmap structure is stored in JSONB format with:
+-- - phases: array of learning phases with topics, technologies, duration, timeline
+-- - project_suggestions: array of project ideas with title, description, technologies, difficulty
+-- - job_application_timing: text guidance on when to apply
+-- Enhanced fields include: timeframe_months, learning_hours_per_week, current_skills, 
+-- progress_percentage, completed_phases, and notes for progress tracking
 
 COMMIT;

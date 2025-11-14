@@ -9,6 +9,8 @@ import { profileApi } from "@/lib/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { CVUpload } from "@/components/CVUpload"
+import { ProfileAssistant } from "@/components/ProfileAssistant"
+import { CVExport } from "@/components/CVExport"
 
 // Lazy load Footer
 const Footer = dynamic(() => import("@/components/Footer"), {
@@ -32,8 +34,18 @@ export default function ProfilePage() {
 
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
+  const [roles, setRoles] = useState<string[]>([])
+  const [newRole, setNewRole] = useState("")
+  const [projects, setProjects] = useState<string[]>([])
+  const [newProject, setNewProject] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  // Function to reload profile data
+  const reloadProfile = () => {
+    setRefreshKey(prevKey => prevKey + 1)
+  }
   const [isGeneratingCV, setIsGeneratingCV] = useState(false)
 
   // Load profile data on mount
@@ -65,6 +77,8 @@ export default function ProfilePage() {
         })
 
         setSkills(profile.skills || [])
+        setRoles(profile.target_roles || [])
+        setProjects(profile.projects || [])
       } catch (err: any) {
         if (err.message.includes('Session expired')) {
           router.push('/login')
@@ -77,7 +91,7 @@ export default function ProfilePage() {
     }
 
     loadProfile()
-  }, [router])
+  }, [router, refreshKey])
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -92,6 +106,28 @@ export default function ProfilePage() {
 
   const removeSkill = (skillToRemove: string) => {
     setSkills(skills.filter(skill => skill !== skillToRemove))
+  }
+
+  const addRole = () => {
+    if (newRole.trim() && !roles.includes(newRole.trim())) {
+      setRoles([...roles, newRole.trim()])
+      setNewRole("")
+    }
+  }
+
+  const removeRole = (roleToRemove: string) => {
+    setRoles(roles.filter(role => role !== roleToRemove))
+  }
+
+  const addProject = () => {
+    if (newProject.trim() && !projects.includes(newProject.trim())) {
+      setProjects([...projects, newProject.trim()])
+      setNewProject("")
+    }
+  }
+
+  const removeProject = (projectToRemove: string) => {
+    setProjects(projects.filter(project => project !== projectToRemove))
   }
 
   const handleSave = async () => {
@@ -118,6 +154,8 @@ export default function ProfilePage() {
         full_name: formData.name,
         education_level: formData.education,
         skills: skills,
+        target_roles: roles,
+        projects: projects,
       }
 
       if (formData.experience) {
@@ -322,7 +360,13 @@ export default function ProfilePage() {
 
               <CVUpload
                 onUploadSuccess={() => {
-                  toast.success('CV uploaded successfully!')
+                  toast.success('CV uploaded and skills extracted!')
+                  // Reload profile to get new skills
+                  toast.info('Updating your profile...')
+                  setTimeout(() => {
+                    reloadProfile()
+                    toast.success('Profile refreshed!')
+                  }, 1500)
                 }}
               />
             </motion.div>
@@ -333,39 +377,19 @@ export default function ProfilePage() {
               whileHover={{ y: -2 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
-                <Download className="w-5 h-5 text-blue-400" />
-                Auto-Generate CV
-              </h2>
-
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Generate a professional CV based on your profile information. The CV will be automatically formatted and ready to download as a PDF.
-                </p>
-
-                <Button
-                  onClick={handleGenerateCV}
-                  disabled={isGeneratingCV}
-                  className="w-full h-12 rounded-lg bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-medium shadow-lg hover:shadow-green-500/50 transition-all duration-300"
-                >
-                  {isGeneratingCV ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-                      Generating CV...
-                    </>
-                  ) : (
-                    <>
-                      <Download className="w-4 h-4 mr-2" />
-                      Generate & Download CV
-                    </>
-                  )}
-                </Button>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-foreground">
+                  AI Profile Assistant
+                </h2>
+                <CVExport />
               </div>
+              <ProfileAssistant />
             </motion.div>
           </div>
 
-          {/* Skills Section - Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Skills & Roles Section - Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Skills Section */}
             <motion.div
               className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
               whileHover={{ y: -2 }}
@@ -425,23 +449,149 @@ export default function ProfilePage() {
                   </p>
                 )}
               </div>
-
-              {/* Save Button */}
-              <Button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full mt-6 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
-              >
-                {isSaving ? (
-                  "Saving..."
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Profile
-                  </>
-                )}
-              </Button>
             </motion.div>
+
+            {/* Target Roles Section */}
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+                <Target className="w-5 h-5 text-blue-400" />
+                Target Roles
+              </h2>
+              
+              {/* Add Role Input */}
+              <div className="space-y-3 mb-6">
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Add a target role..."
+                    value={newRole}
+                    onChange={(e) => setNewRole(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addRole()}
+                    className="glass-effect border-gray-300 dark:border-white/10 focus:border-blue-500 dark:focus:border-blue-500 h-10"
+                  />
+                  <Button
+                    onClick={addRole}
+                    size="icon"
+                    className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  e.g., "Full Stack Developer", "Data Analyst"
+                </p>
+              </div>
+
+              {/* Roles List */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {roles.map((role, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="px-3 py-1.5 border-blue-400/30 hover:border-blue-400 transition-colors group"
+                    >
+                      <span>{role}</span>
+                      <button
+                        onClick={() => removeRole(role)}
+                        className="ml-2 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                
+                {roles.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No target roles set. Add roles you're interested in!
+                  </p>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Projects Section */}
+            <motion.div
+              className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
+              whileHover={{ y: -2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <h2 className="text-xl font-semibold text-foreground mb-6 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-yellow-400" />
+                Projects
+              </h2>
+              
+              {/* Add Project Input */}
+              <div className="space-y-3 mb-6">
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Add a project..."
+                    value={newProject}
+                    onChange={(e) => setNewProject(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && addProject()}
+                    className="glass-effect border-gray-300 dark:border-white/10 focus:border-yellow-500 dark:focus:border-yellow-500 h-10"
+                  />
+                  <Button
+                    onClick={addProject}
+                    size="icon"
+                    className="h-10 w-10 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  e.g., "Portfolio Website", "E-commerce App"
+                </p>
+              </div>
+
+              {/* Projects List */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {projects.map((project, index) => (
+                    <Badge
+                      key={index}
+                      variant="outline"
+                      className="px-3 py-1.5 border-yellow-400/30 hover:border-yellow-400 transition-colors group"
+                    >
+                      <span>{project}</span>
+                      <button
+                        onClick={() => removeProject(project)}
+                        className="ml-2 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+                
+                {projects.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No projects added yet. Add some projects to showcase your work!
+                  </p>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Save Button */}
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-blue-500/50 transition-all duration-300"
+            >
+              {isSaving ? (
+                "Saving..."
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Profile
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </main>

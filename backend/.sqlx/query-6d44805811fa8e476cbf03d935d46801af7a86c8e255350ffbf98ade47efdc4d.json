@@ -1,0 +1,106 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, title, target_role, roadmap_data, ai_provider, \n                timeframe_months, learning_hours_per_week, current_skills,\n                project_suggestions, job_application_timing, \n                progress_percentage, completed_phases, notes,\n                created_at, updated_at \n         FROM career_roadmaps \n         WHERE user_id = $1 \n         ORDER BY created_at DESC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "target_role",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "roadmap_data",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "ai_provider",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "timeframe_months",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 6,
+        "name": "learning_hours_per_week",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 7,
+        "name": "current_skills",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "project_suggestions",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 9,
+        "name": "job_application_timing",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "progress_percentage",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 11,
+        "name": "completed_phases",
+        "type_info": "Int4Array"
+      },
+      {
+        "ordinal": 12,
+        "name": "notes",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 13,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 14,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "6d44805811fa8e476cbf03d935d46801af7a86c8e255350ffbf98ade47efdc4d"
+}

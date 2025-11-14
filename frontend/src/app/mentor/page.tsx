@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { aiApi } from "@/lib/api"
 import { toast } from "sonner"
 import { Bot, Send, Lightbulb, User } from "lucide-react"
+import ReactMarkdown from "react-markdown"
 
 // Lazy load Footer
 const Footer = dynamic(() => import("@/components/Footer"), {
@@ -21,6 +22,7 @@ interface Message {
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
+  disclaimer?: string
 }
 
 export default function MentorPage() {
@@ -29,8 +31,9 @@ export default function MentorPage() {
     {
       id: '1',
       role: 'assistant',
-      content: "Hi! I'm your AI Career Mentor. Ask me anything about career development, skill building, job search strategies, or transitioning to new roles. How can I help you today?",
-      timestamp: new Date()
+      content: "Hi! I'm **CareerBot**, your AI Career Mentor aligned with UN Sustainable Development Goal 8 (Decent Work and Economic Growth).\n\nI'm here to help you with:\n- Career development guidance for youth employment\n- Skill-building strategies and learning paths\n- Job search advice and interview preparation\n- Career transition planning\n\n**Important:** My responses are suggestions and guidance based on current industry trends and best practices. Actual outcomes depend on your individual circumstances, effort, and market conditions.\n\nHow can I support your career journey today?",
+      timestamp: new Date(),
+      disclaimer: "All guidance provided is for informational purposes and should be considered as suggestions, not guarantees."
     }
   ])
   const [input, setInput] = useState("")
@@ -46,11 +49,11 @@ export default function MentorPage() {
   }, [messages])
 
   const suggestedQuestions = [
-    "What should I learn to become a backend developer?",
-    "How can I transition from frontend to full stack?",
+    "Which roles fit my skills?",
+    "What should I learn next to become a backend developer?",
+    "How can I improve my chances of getting an internship?",
     "What skills are most in demand right now?",
     "How do I prepare for technical interviews?",
-    "What certifications should I pursue?",
   ]
 
   const handleSend = async () => {
@@ -70,11 +73,16 @@ export default function MentorPage() {
     try {
       const result = await aiApi.askMentor(input, 'gemini')
       
+      // Extract answer and disclaimer from response
+      const answerData = result.answer?.answer || result.answer || result.response || 'I apologize, but I could not generate a response.'
+      const disclaimer = result.answer?.disclaimer || result.disclaimer || undefined
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: result.answer?.answer || result.answer || result.response || 'I apologize, but I could not generate a response.',
-        timestamp: new Date()
+        content: answerData,
+        timestamp: new Date(),
+        disclaimer: disclaimer
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -109,10 +117,10 @@ export default function MentorPage() {
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gradient mb-2 flex items-center gap-3">
             <Bot className="w-8 h-8 text-blue-400" />
-            AI Career Mentor
+            CareerBot - AI Career Mentor
           </h1>
-          <p className="text-muted-foreground">
-            Get personalized career advice powered by AI
+          <p className="text-muted-foreground mb-3">
+            Get personalized career advice powered by AI, focused on youth employment, Decent Work and Economic Growth
           </p>
         </div>
 
@@ -143,7 +151,17 @@ export default function MentorPage() {
                             : 'glass-effect border border-white/10'
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <div className="prose prose-invert">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                        {message.disclaimer && message.role === 'assistant' && (
+                          <div className="mt-3 pt-3 border-t border-white/10">
+                            <p className="text-xs text-yellow-400 flex items-start gap-2">
+                              <span className="flex-shrink-0">⚠️</span>
+                              <span className="italic">{message.disclaimer}</span>
+                            </p>
+                          </div>
+                        )}
                         <p className={`text-xs mt-2 ${message.role === 'user' ? 'opacity-70' : 'text-muted-foreground'}`}>
                           {message.timestamp.toLocaleTimeString()}
                         </p>
