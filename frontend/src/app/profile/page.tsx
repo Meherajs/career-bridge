@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { profileApi } from "@/lib/api"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { CVUpload } from "@/components/CVUpload"
 
 // Lazy load Footer
 const Footer = dynamic(() => import("@/components/Footer"), {
@@ -17,7 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { User, GraduationCap, Briefcase, Target, X, Plus, Save, FileText, Upload, File, Trash2 } from "lucide-react"
+import { User, GraduationCap, Briefcase, Target, X, Plus, Save, FileText } from "lucide-react"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -31,7 +32,6 @@ export default function ProfilePage() {
   
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
-  const [uploadedCV, setUploadedCV] = useState<File | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -91,28 +91,6 @@ export default function ProfilePage() {
 
   const removeSkill = (skillToRemove: string) => {
     setSkills(skills.filter(skill => skill !== skillToRemove))
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      // Validate file type (PDF, DOC, DOCX)
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-      if (allowedTypes.includes(file.type)) {
-        setUploadedCV(file)
-      } else {
-        alert("Please upload a PDF or Word document (.pdf, .doc, .docx)")
-      }
-    }
-  }
-
-  const handleRemoveCV = () => {
-    setUploadedCV(null)
-    // Reset the file input
-    const fileInput = document.getElementById('cv-upload') as HTMLInputElement
-    if (fileInput) {
-      fileInput.value = ''
-    }
   }
 
   const handleSave = async () => {
@@ -297,67 +275,11 @@ export default function ProfilePage() {
                 CV / Resume
               </h2>
               
-              <div className="space-y-4">
-                {/* File Upload Area */}
-                <div>
-                  <Label htmlFor="cv-upload" className="text-foreground mb-2 block">
-                    Upload your CV or Resume
-                  </Label>
-                  <div className="relative">
-                    <input
-                      type="file"
-                      id="cv-upload"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="cv-upload"
-                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-white/20 rounded-lg cursor-pointer hover:border-green-400 dark:hover:border-green-400 transition-colors bg-gray-50/50 dark:bg-gray-800/30 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                        <p className="mb-2 text-sm text-foreground">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          PDF, DOC, or DOCX (MAX. 10MB)
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Uploaded File Display */}
-                {uploadedCV && (
-                  <div className="flex items-center justify-between p-4 rounded-lg border border-green-200 dark:border-green-500/30 bg-green-50/50 dark:bg-green-900/20">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
-                        <File className="w-5 h-5 text-green-600 dark:text-green-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {uploadedCV.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {(uploadedCV.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleRemoveCV}
-                      className="flex-shrink-0 ml-3 p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 transition-colors"
-                      aria-label="Remove CV"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-
-                <p className="text-xs text-muted-foreground">
-                  This information helps us provide better job recommendations
-                </p>
-              </div>
+              <CVUpload 
+                onUploadSuccess={() => {
+                  toast.success('CV uploaded successfully!')
+                }}
+              />
             </motion.div>
           </div>
 
