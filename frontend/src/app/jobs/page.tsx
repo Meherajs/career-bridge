@@ -80,8 +80,10 @@ export default function JobsPage() {
         if (err.message.includes('Session expired')) {
           console.log('🔐 Redirecting to login...')
           router.push('/login')
+        } else if (err.message.includes('Failed to fetch') || err.message.includes('Network')) {
+          toast.error('Unable to connect to server. Please ensure the backend is running.')
         } else {
-          toast.error('Failed to load jobs')
+          toast.error('Failed to load jobs: ' + err.message)
         }
       } finally {
         setIsLoading(false)

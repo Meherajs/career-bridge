@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { User, GraduationCap, Briefcase, Target, X, Plus, Save, FileText } from "lucide-react"
+import { User, GraduationCap, Briefcase, Target, X, Plus, Save, FileText, Download } from "lucide-react"
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -31,7 +31,7 @@ export default function ProfilePage() {
     experience: "",
     track: "",
   })
-  
+
   const [skills, setSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
   const [roles, setRoles] = useState<string[]>([])
@@ -46,13 +46,14 @@ export default function ProfilePage() {
   const reloadProfile = () => {
     setRefreshKey(prevKey => prevKey + 1)
   }
+  const [isGeneratingCV, setIsGeneratingCV] = useState(false)
 
   // Load profile data on mount
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const profile = await profileApi.getProfile()
-        
+
         // Map API values to frontend values
         const experienceMap: Record<string, string> = {
           'fresher': 'fresher',
@@ -74,7 +75,7 @@ export default function ProfilePage() {
           experience: profile.experience_level ? experienceMap[profile.experience_level] || 'fresher' : 'fresher',
           track: profile.preferred_track ? trackMap[profile.preferred_track] || 'software-dev' : 'software-dev',
         })
-        
+
         setSkills(profile.skills || [])
         setRoles(profile.target_roles || [])
         setProjects(profile.projects || [])
@@ -131,7 +132,7 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     setIsSaving(true)
-    
+
     try {
       // Map frontend values to API values
       const experienceLevelMap: Record<string, 'fresher' | 'junior' | 'mid'> = {
@@ -173,6 +174,50 @@ export default function ProfilePage() {
     }
   }
 
+  const handleGenerateCV = async () => {
+    setIsGeneratingCV(true)
+    try {
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        toast.error('Please log in to generate CV')
+        router.push('/login')
+        return
+      }
+
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3000/api';
+      const response = await fetch(`${API_BASE_URL}/profile/generate-cv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to generate CV')
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob()
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `CV_${formData.name.replace(/\s+/g, '_')}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      toast.success('CV downloaded successfully!')
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to generate CV')
+    } finally {
+      setIsGeneratingCV(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -184,7 +229,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Header */}
         <div className="mb-8">
@@ -207,7 +252,7 @@ export default function ProfilePage() {
                 <User className="w-5 h-5 text-blue-400" />
                 Personal Information
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-foreground">Full Name</Label>
@@ -243,7 +288,7 @@ export default function ProfilePage() {
                 <Target className="w-5 h-5 text-purple-400" />
                 Career Information
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="education" className="text-foreground">Education Level</Label>
@@ -312,8 +357,8 @@ export default function ProfilePage() {
                 <FileText className="w-5 h-5 text-green-400" />
                 CV / Resume
               </h2>
-              
-              <CVUpload 
+
+              <CVUpload
                 onUploadSuccess={() => {
                   toast.success('CV uploaded and skills extracted!')
                   // Reload profile to get new skills
@@ -326,7 +371,7 @@ export default function ProfilePage() {
               />
             </motion.div>
 
-            {/* AI Profile Assistant */}
+            {/* CV Generation Section */}
             <motion.div
               className="rounded-xl p-6 border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm dark:shadow-md"
               whileHover={{ y: -2 }}
@@ -353,7 +398,7 @@ export default function ProfilePage() {
               <h2 className="text-xl font-semibold text-foreground mb-6">
                 Skills
               </h2>
-              
+
               {/* Add Skill Input */}
               <div className="space-y-3 mb-6">
                 <div className="flex gap-2">
@@ -397,7 +442,7 @@ export default function ProfilePage() {
                     </Badge>
                   ))}
                 </div>
-                
+
                 {skills.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No skills added yet. Add some skills to get started!
