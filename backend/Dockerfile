@@ -15,6 +15,8 @@ COPY Cargo.toml Cargo.lock ./
 
 # Copy source code
 COPY src ./src
+
+# Copy .sqlx directory for offline SQLx compilation
 COPY .sqlx ./.sqlx
 
 # Build application with release profile
