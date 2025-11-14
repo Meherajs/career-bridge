@@ -45,7 +45,7 @@ struct ReliefWebFields {
     #[serde(default)]
     body: Option<String>,
     #[serde(default)]
-    url_alias: String,  // This is the correct field for the public job posting URL
+    url_alias: String, // This is the correct field for the public job posting URL
     #[serde(default)]
     source: Vec<ReliefWebSource>,
     #[serde(default)]
@@ -104,7 +104,10 @@ async fn fetch_reliefweb_jobs() -> Result<Vec<ExternalJob>, Box<dyn std::error::
     let response = match response {
         Ok(resp) if resp.status().is_success() => resp,
         Ok(resp) => {
-            warn!("ReliefWeb API returned status: {}. Using sample data.", resp.status());
+            warn!(
+                "ReliefWeb API returned status: {}. Using sample data.",
+                resp.status()
+            );
             return Ok(get_sample_ngo_jobs());
         }
         Err(e) => {
@@ -116,7 +119,10 @@ async fn fetch_reliefweb_jobs() -> Result<Vec<ExternalJob>, Box<dyn std::error::
     let data: ReliefWebResponse = match response.json().await {
         Ok(d) => d,
         Err(e) => {
-            error!("Failed to parse ReliefWeb API response: {}. Using sample data.", e);
+            error!(
+                "Failed to parse ReliefWeb API response: {}. Using sample data.",
+                e
+            );
             return Ok(get_sample_ngo_jobs());
         }
     };
@@ -166,7 +172,7 @@ async fn fetch_reliefweb_jobs() -> Result<Vec<ExternalJob>, Box<dyn std::error::
                 company,
                 location,
                 description: job.fields.body.unwrap_or_default(),
-                url: job_url,  // Using the correct url_alias field
+                url: job_url, // Using the correct url_alias field
                 posted_date: job.fields.date.created,
                 source: "ReliefWeb".to_string(),
                 job_type: Some("Full-time".to_string()),
@@ -181,7 +187,10 @@ async fn fetch_reliefweb_jobs() -> Result<Vec<ExternalJob>, Box<dyn std::error::
         })
         .collect();
 
-    info!("Successfully fetched {} jobs from ReliefWeb API", jobs.len());
+    info!(
+        "Successfully fetched {} jobs from ReliefWeb API",
+        jobs.len()
+    );
     Ok(jobs)
 }
 
