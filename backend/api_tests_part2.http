@@ -1,0 +1,179 @@
+### Part 2 AI Features Testing
+### Replace YOUR_TOKEN with actual JWT token after login
+
+### ============================================
+### Point 1: Smart Skill Extraction
+### ============================================
+
+### Extract skills from CV text
+POST http://localhost:3000/api/ai/extract-skills
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "cv_text": "Senior Full Stack Developer with 5 years of experience in React, Node.js, TypeScript, and AWS. Led a team of 3 developers to build scalable e-commerce platforms. AWS Certified Solutions Architect. Strong skills in agile methodologies, team leadership, and problem-solving.",
+  "provider": "gemini",
+  "update_profile": true
+}
+
+###
+
+### ============================================
+### Point 4: AI-Generated Career Roadmap
+### ============================================
+
+### Generate a personalized learning roadmap
+POST http://localhost:3000/api/ai/roadmap
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "tech_stack": "DevOps Engineering",
+  "provider": "gemini",
+  "include_current_skills": true
+}
+
+###
+
+### Get all saved roadmaps for user
+GET http://localhost:3000/api/ai/roadmaps
+Authorization: Bearer YOUR_TOKEN
+
+###
+
+### Get specific roadmap by ID (replace {id} with actual roadmap_id)
+GET http://localhost:3000/api/ai/roadmaps/1
+Authorization: Bearer YOUR_TOKEN
+
+###
+
+### Delete a roadmap (replace {id} with actual roadmap_id)
+DELETE http://localhost:3000/api/ai/roadmaps/1
+Authorization: Bearer YOUR_TOKEN
+
+###
+
+### ============================================
+### Point 5: Career Mentor Chatbot
+### ============================================
+
+### Ask career-related question
+POST http://localhost:3000/api/ai/ask-mentor
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "question": "What skills should I focus on to transition from frontend to full stack development?",
+  "provider": "gemini"
+}
+
+###
+
+### Ask about career path
+POST http://localhost:3000/api/ai/ask-mentor
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "question": "How can I prepare for a senior developer role in the next 6 months?",
+  "provider": "gemini"
+}
+
+###
+
+### ============================================
+### Point 6: CV/Profile Assistant
+### ============================================
+
+### Generate professional summary
+POST http://localhost:3000/api/ai/generate-summary
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "provider": "gemini"
+}
+
+###
+
+### Improve project descriptions
+POST http://localhost:3000/api/ai/improve-projects
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "projects": [
+    "Built a todo app with React",
+    "Created an e-commerce website",
+    "Developed a chat application"
+  ],
+  "provider": "gemini"
+}
+
+###
+
+### Get LinkedIn profile improvement suggestions
+POST http://localhost:3000/api/ai/profile-suggestions
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "platform": "linkedin",
+  "provider": "gemini"
+}
+
+###
+
+### Get portfolio improvement suggestions
+POST http://localhost:3000/api/ai/profile-suggestions
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "platform": "portfolio",
+  "provider": "gemini"
+}
+
+###
+
+### ============================================
+### Test with Groq Provider (Alternative)
+### ============================================
+
+### Extract skills using Groq
+POST http://localhost:3000/api/ai/extract-skills
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "cv_text": "Data Scientist with expertise in Python, TensorFlow, and machine learning. Published 3 research papers.",
+  "provider": "groq",
+  "update_profile": false
+}
+
+###
+
+### Generate roadmap using Groq
+POST http://localhost:3000/api/ai/roadmap
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "tech_stack": "Mobile App Development",
+  "provider": "groq",
+  "include_current_skills": true
+}
+
+###
+
+### Ask mentor using Groq
+POST http://localhost:3000/api/ai/ask-mentor
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json
+
+{
+  "question": "What are the best practices for learning data structures and algorithms?",
+  "provider": "groq"
+}
+
+###
