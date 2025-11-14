@@ -85,7 +85,7 @@ async fn main() {
         .unwrap_or_else(|_| "3000".to_string())
         .parse::<u16>()
         .expect("PORT must be a valid number");
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     info!("Binding to address: {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr)
