@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ClientComponents } from "@/components/ClientComponents";
 import { Toaster } from "@/components/ui/sonner";
 import FloatingMentorButton from "@/components/FloatingMentorButton";
@@ -57,20 +58,22 @@ export default function RootLayout({
       </head>
       <body className={`antialiased ${inter.variable} ${poppins.variable}`}>
         <ThemeProvider>
-          <ClientComponents />
-          <FloatingMentorButton />
-          <Toaster />
-          <Script
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
-            strategy="lazyOnload"
-            data-target-origin="*"
-            data-message-type="ROUTE_CHANGE"
-            data-include-search-params="true"
-            data-only-in-iframe="true"
-            data-debug="true"
-            data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
-          />
-          {children}
+          <LanguageProvider>
+            <ClientComponents />
+            <FloatingMentorButton />
+            <Toaster />
+            <Script
+              src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
+              strategy="lazyOnload"
+              data-target-origin="*"
+              data-message-type="ROUTE_CHANGE"
+              data-include-search-params="true"
+              data-only-in-iframe="true"
+              data-debug="true"
+              data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
+            />
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -7,13 +7,16 @@ import { Menu, X, Briefcase, BookOpen, User, LayoutDashboard, LogOut, Sparkles, 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import ThemeToggle from "@/components/ThemeToggle"
+import LanguageToggle from "@/components/LanguageToggle"
 import { logout, isAuthenticated } from "@/lib/api"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isAuth, setIsAuth] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+  const { t } = useLanguage()
 
   // Check if we're on the demo page
   const isDemoPage = pathname === "/demo"
@@ -32,12 +35,12 @@ export default function Navbar() {
   }
 
   const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/jobs", label: "Jobs", icon: Briefcase },
-    { href: "/resources", label: "Resources", icon: BookOpen },
-    { href: "/skill-gap", label: "Skill Gap", icon: Target },
-    { href: "/roadmap", label: "AI Roadmap", icon: Route },
-    { href: "/profile", label: "Profile", icon: User },
+    { href: "/dashboard", label: t('nav.dashboard'), icon: LayoutDashboard },
+    { href: "/jobs", label: t('nav.jobs'), icon: Briefcase },
+    { href: "/resources", label: t('nav.resources'), icon: BookOpen },
+    { href: "/skill-gap", label: t('nav.skillGap'), icon: Target },
+    { href: "/roadmap", label: t('nav.roadmap'), icon: Route },
+    { href: "/profile", label: t('nav.profile'), icon: User },
   ]
 
   return (
@@ -60,11 +63,11 @@ export default function Navbar() {
               <div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-200/50 dark:border-blue-500/30">
                 <Sparkles className="w-4 h-4 text-blue-500" />
                 <div className="hidden sm:block">
-                  <p className="text-xs font-semibold text-foreground leading-tight">Demo Mode</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">Preview with sample data</p>
+                  <p className="text-xs font-semibold text-foreground leading-tight">{t('nav.demoMode')}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight">{t('nav.previewSampleData')}</p>
                 </div>
                 <div className="sm:hidden">
-                  <p className="text-xs font-semibold text-foreground leading-tight">Demo</p>
+                  <p className="text-xs font-semibold text-foreground leading-tight">{t('nav.demo')}</p>
                 </div>
               </div>
             )}
@@ -100,6 +103,7 @@ export default function Navbar() {
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-2">
+            <LanguageToggle />
             <ThemeToggle />
 
             {isDemoPage ? (
@@ -109,7 +113,7 @@ export default function Navbar() {
                 className="hidden md:flex items-center space-x-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium"
               >
                 <Link href="/register">
-                  <span>Get Started</span>
+                  <span>{t('nav.getStarted')}</span>
                 </Link>
               </Button>
             ) : isAuth ? (
@@ -119,7 +123,7 @@ export default function Navbar() {
                 className="hidden md:flex items-center space-x-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 font-medium"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Logout</span>
+                <span>{t('nav.logout')}</span>
               </Button>
             ) : (
               <Button
@@ -128,7 +132,7 @@ export default function Navbar() {
                 className="hidden md:flex items-center space-x-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/30 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium"
               >
                 <Link href="/login">
-                  <span>Login</span>
+                  <span>{t('nav.login')}</span>
                 </Link>
               </Button>
             )}
@@ -155,8 +159,8 @@ export default function Navbar() {
                     <div className="flex items-center space-x-2 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-blue-200/50 dark:border-blue-500/30 mb-2">
                       <Sparkles className="w-4 h-4 text-blue-500" />
                       <div>
-                        <p className="text-xs font-semibold text-foreground leading-tight">Demo Mode</p>
-                        <p className="text-[10px] text-muted-foreground leading-tight">Preview with sample data</p>
+                        <p className="text-xs font-semibold text-foreground leading-tight">{t('nav.demoMode')}</p>
+                        <p className="text-[10px] text-muted-foreground leading-tight">{t('nav.previewSampleData')}</p>
                       </div>
                     </div>
                   )}
@@ -190,7 +194,7 @@ export default function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white transition-all duration-200"
                     >
-                      <span className="font-medium">Get Started</span>
+                      <span className="font-medium">{t('nav.getStarted')}</span>
                     </Link>
                   ) : isAuth ? (
                     <button
@@ -201,7 +205,7 @@ export default function Navbar() {
                       className="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-400 hover:text-red-300 hover:bg-white/5 transition-all duration-200 text-left w-full"
                     >
                       <LogOut className="w-5 h-5" />
-                      <span className="font-medium">Logout</span>
+                      <span className="font-medium">{t('nav.logout')}</span>
                     </button>
                   ) : (
                     <Link
@@ -209,7 +213,7 @@ export default function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className="flex items-center space-x-3 px-4 py-3 rounded-lg text-blue-400 hover:text-blue-300 hover:bg-white/5 transition-all duration-200"
                     >
-                      <span className="font-medium">Login</span>
+                      <span className="font-medium">{t('nav.login')}</span>
                     </Link>
                   )}
                 </div>

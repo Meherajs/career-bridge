@@ -12,6 +12,7 @@ import { jobsApi, externalJobsApi, ExternalJob } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 // Lazy load heavy components
 const JobDetailsModal = dynamic(() => import("@/components/JobDetailsModal"), {
@@ -23,6 +24,7 @@ const Footer = dynamic(() => import("@/components/Footer"), {
 
 export default function JobsPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState("")
   const [locationFilter, setLocationFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
@@ -218,7 +220,7 @@ export default function JobsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading jobs...</div>
+        <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
       </div>
     )
   }
@@ -286,9 +288,9 @@ export default function JobsPage() {
       <main className="container mx-auto px-4 pt-24 pb-12">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">Explore Jobs</h1>
+          <h1 className="text-4xl font-bold text-gradient mb-2">{t('jobs.title')}</h1>
           <p className="text-muted-foreground">
-            Discover opportunities from all sources or focus on local Bangladeshi jobs from NGOs, government, and job boards
+            {t('jobs.subtitle')}
           </p>
         </div>
 
@@ -297,11 +299,11 @@ export default function JobsPage() {
           <TabsList className="glass-effect border border-purple-200 dark:border-purple-500/20">
             <TabsTrigger value="all" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
               <Globe className="w-4 h-4 mr-2" />
-              All Jobs
+              {t('jobs.allJobs')}
             </TabsTrigger>
             <TabsTrigger value="local" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:to-purple-600 data-[state=active]:text-white">
               <Building className="w-4 h-4 mr-2" />
-              Local Jobs
+              {t('jobs.localJobs')}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -315,7 +317,7 @@ export default function JobsPage() {
                 <Search className="absolute left-3 top-[14px] w-5 h-5 text-muted-foreground pointer-events-none" />
                 <Input
                   type="text"
-                  placeholder="Search jobs, companies, skills..."
+                  placeholder={t('jobs.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 glass-effect border-purple-200 dark:border-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 h-12"
@@ -328,12 +330,12 @@ export default function JobsPage() {
               <Filter className="absolute left-3 top-[12px] w-3.5 h-3.5 text-muted-foreground z-10 pointer-events-none" />
               <Select value={locationFilter} onValueChange={setLocationFilter}>
                 <SelectTrigger className="pl-9 pr-3 glass-effect border-purple-200 dark:border-purple-500/20 h-12 w-full md:w-[180px]">
-                  <SelectValue placeholder="Location" />
+                  <SelectValue placeholder={t('jobs.location')} />
                 </SelectTrigger>
                 <SelectContent className="glass-effect border-white/10">
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="remote">Remote</SelectItem>
-                  <SelectItem value="onsite">On-site</SelectItem>
+                  <SelectItem value="all">{t('jobs.allLocations')}</SelectItem>
+                  <SelectItem value="remote">{t('jobs.remote')}</SelectItem>
+                  <SelectItem value="onsite">{t('jobs.onsite')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -343,14 +345,14 @@ export default function JobsPage() {
               <Filter className="absolute left-3 top-[12px] w-3.5 h-3.5 text-muted-foreground z-10 pointer-events-none" />
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="pl-9 pr-3 glass-effect border-purple-200 dark:border-purple-500/20 h-12 w-full md:w-[180px]">
-                  <SelectValue placeholder="Job Type" />
+                  <SelectValue placeholder={t('jobs.jobType')} />
                 </SelectTrigger>
                 <SelectContent className="glass-effect border-white/10">
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="full-time">Full-time</SelectItem>
-                  <SelectItem value="part-time">Part-time</SelectItem>
-                  <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="internship">Internship</SelectItem>
+                  <SelectItem value="all">{t('jobs.allTypes')}</SelectItem>
+                  <SelectItem value="full-time">{t('jobs.fullTime')}</SelectItem>
+                  <SelectItem value="part-time">{t('jobs.partTime')}</SelectItem>
+                  <SelectItem value="contract">{t('jobs.contract')}</SelectItem>
+                  <SelectItem value="internship">{t('jobs.internship')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -359,10 +361,10 @@ export default function JobsPage() {
           {/* Results count and items per page */}
           <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="text-sm text-muted-foreground">
-              <>Showing <span className="text-foreground font-medium">{startIndexExternal + 1}-{Math.min(endIndexExternal, filteredExternalJobs.length)}</span> of <span className="text-foreground font-medium">{filteredExternalJobs.length}</span> results</>
+              <>{t('jobs.showing')} <span className="text-foreground font-medium">{startIndexExternal + 1}-{Math.min(endIndexExternal, filteredExternalJobs.length)}</span> {t('jobs.of')} <span className="text-foreground font-medium">{filteredExternalJobs.length}</span> {t('jobs.results')}</>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Jobs per page:</span>
+              <span className="text-sm text-muted-foreground">{t('jobs.jobsPerPage')}</span>
               <Select value={itemsPerPage.toString()} onValueChange={(value) => setItemsPerPage(Number(value))}>
                 <SelectTrigger className="w-[80px] h-9 glass-effect border-purple-200 dark:border-purple-500/20">
                   <SelectValue />
@@ -382,7 +384,7 @@ export default function JobsPage() {
         {
           isLoadingExternal ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-pulse text-muted-foreground">Loading external jobs...</div>
+              <div className="animate-pulse text-muted-foreground">{t('common.loading')}</div>
             </div>
           ) : filteredExternalJobs.length > 0 ? (
             <>
@@ -435,7 +437,7 @@ export default function JobsPage() {
                     )}
 
                     <div className="text-xs text-muted-foreground">
-                      Posted: {new Date(job.posted_date).toLocaleDateString()}
+                      {t('jobs.posted')} {new Date(job.posted_date).toLocaleDateString()}
                     </div>
                   </div>
                 ))}
@@ -445,7 +447,7 @@ export default function JobsPage() {
           ) : (
             <div className="glass-effect rounded-xl p-12 text-center border border-white/10">
               <p className="text-muted-foreground text-lg">
-                No jobs found. Try a different filter or check back later.
+                {t('jobs.noJobs')}
               </p>
             </div>
           )
