@@ -341,40 +341,6 @@ export default function SkillGapPage() {
                 </CardContent>
               </Card>
             )}
-
-            {/* All Required Skills */}
-            <Card className="border border-gray-200 dark:border-white/20 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900/50 dark:to-gray-800/30 shadow-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-purple-400" />
-                  All Required Skills ({analysis.required_skills.length})
-                </CardTitle>
-                <CardDescription>
-                  Complete list of skills needed for {analysis.target_role}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {analysis.required_skills.map((skill: string, index: number) => {
-                    const hasSkill = analysis.matching_skills.includes(skill)
-                    return (
-                      <Badge
-                        key={index}
-                        variant={hasSkill ? "default" : "outline"}
-                        className={
-                          hasSkill
-                            ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 border-green-300 dark:border-green-500/50"
-                            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600"
-                        }
-                      >
-                        {hasSkill && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                        {skill}
-                      </Badge>
-                    )
-                  })}
-                </div>
-              </CardContent>
-            </Card>
           </motion.div>
         )}
 

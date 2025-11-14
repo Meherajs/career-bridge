@@ -29,7 +29,14 @@ export default function LoginPage() {
       localStorage.setItem('authToken', response.token)
       localStorage.setItem('userId', response.user.id)
       
-      // Check if profile is completed
+      // Check if user is admin
+      if (response.user.role === 'admin') {
+        toast.success('Welcome back, Admin!')
+        router.push('/admin')
+        return
+      }
+      
+      // Check if profile is completed for regular users
       if (!response.user.profile_completed) {
         router.push('/onboarding')
       } else {
@@ -49,7 +56,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      {/* Logo in top left corner */}
+      <Link href="/" className="absolute top-6 left-6 z-50 flex items-center space-x-2 group">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
+          <Briefcase className="w-5 h-5 text-white" />
+        </div>
+        <span className="text-xl font-bold text-white hidden sm:block">CareerBridge</span>
+      </Link>
+
       {/* Left side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-12 items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-20"></div>
@@ -168,6 +183,24 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 text-muted-foreground bg-background">OR</span>
+              </div>
+            </div>
+
+            {/* Admin Sign In Notice */}
+            <div className="p-4 rounded-lg bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border border-red-200/50 dark:border-red-500/30">
+              <div className="flex items-start space-x-3">
+                <Sparkles className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    Admin Access
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use admin credentials to access the admin dashboard
+                  </p>
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-mono">
+                    admin@careerbridge.com
+                  </p>
+                </div>
               </div>
             </div>
 

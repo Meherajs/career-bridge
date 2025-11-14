@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Menu, X, Briefcase, BookOpen, User, LayoutDashboard, LogOut, Sparkles, Target, Route } from "lucide-react"
@@ -27,18 +27,19 @@ export default function Navbar() {
     }
   }, [pathname, isDemoPage])
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout()
-  }
+  }, [])
 
-  const navLinks = [
+  // Memoize navigation links to prevent recreation
+  const navLinks = useMemo(() => [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/jobs", label: "Jobs", icon: Briefcase },
     { href: "/resources", label: "Resources", icon: BookOpen },
     { href: "/skill-gap", label: "Skill Gap", icon: Target },
     { href: "/roadmap", label: "AI Roadmap", icon: Route },
     { href: "/profile", label: "Profile", icon: User },
-  ]
+  ], []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200 dark:border-white/20 shadow-sm">
