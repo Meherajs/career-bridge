@@ -80,7 +80,7 @@ async fn main() {
     let app = handlers::create_router(app_state);
     info!("✓ Routes configured");
 
-    // Bind to address - use 0.0.0.0 for Railway and read PORT from environment
+    // Bind to address - use 0.0.0.0 for Render and read PORT from environment
     let port = env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse::<u16>()
