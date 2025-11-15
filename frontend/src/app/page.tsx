@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button"
 import { Briefcase, Target, BookOpen, TrendingUp, Sparkles, ArrowRight, CheckCircle } from "lucide-react"
 import ThemeToggle from "@/components/ThemeToggle"
 
-// Lazy load heavy components
+// Lazy load heavy components with loading states
 const Footer = dynamic(() => import("@/components/Footer"), {
-  loading: () => <div className="h-32" />, // Placeholder to prevent layout shift
+  loading: () => <div className="h-32 bg-transparent" />,
+  ssr: false, // Footer doesn't need SSR
 });
+
 const TestimonialScroll = dynamic(() => import("@/components/TestimonialScroll"), {
-  loading: () => <div className="h-64" />, // Placeholder to prevent layout shift
+  loading: () => <div className="h-64 bg-transparent" />,
+  ssr: false, // Testimonials don't need SSR
 });
 
 export default function Home() {
@@ -32,10 +35,10 @@ export default function Home() {
             <div className="flex items-center space-x-4">
               <ThemeToggle />
               <Button asChild variant="ghost" className="rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 font-medium">
-                <Link href="/login">Sign In</Link>
+                <Link href="/login" prefetch={true}>Sign In</Link>
               </Button>
               <Button asChild className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/50 transition-all duration-300 font-medium">
-                <Link href="/register">Get Started</Link>
+                <Link href="/register" prefetch={true}>Get Started</Link>
               </Button>
             </div>
           </div>

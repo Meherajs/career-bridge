@@ -2,6 +2,36 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:3000/api';
 
+// Simple in-memory cache for API responses
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+}
+
+const apiCache = new Map<string, CacheEntry>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Cache helper functions
+const getCachedData = (key: string): any | null => {
+  const entry = apiCache.get(key);
+  if (!entry) return null;
+  
+  const now = Date.now();
+  if (now - entry.timestamp > CACHE_DURATION) {
+    apiCache.delete(key);
+    return null;
+  }
+  
+  return entry.data;
+};
+
+const setCachedData = (key: string, data: any): void => {
+  apiCache.set(key, {
+    data,
+    timestamp: Date.now(),
+  });
+};
+
 // Get headers with authentication token
 const getHeaders = (token?: string | null): HeadersInit => {
   const headers: HeadersInit = {
@@ -34,6 +64,7 @@ export interface LoginResponse {
     id: string;
     full_name: string;
     email: string;
+    role?: 'user' | 'admin';
     profile_completed: boolean;
     experience_level: string | null;
     preferred_track: string | null;
@@ -203,8 +234,12 @@ export const authApi = {
 
 // Profile APIs
 export const profileApi = {
-  // Get user profile
+  // Get user profile with caching
   getProfile: async (): Promise<ProfileResponse> => {
+    const cacheKey = 'profile_data';
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/profile`, {
       headers: getHeaders(token),
@@ -220,7 +255,9 @@ export const profileApi = {
       throw new Error(error.error || 'Failed to fetch profile');
     }
 
-    return await response.json();
+    const data = await response.json();
+    setCachedData(cacheKey, data);
+    return data;
   },
 
   // Complete profile (onboarding)
@@ -243,6 +280,11 @@ export const profileApi = {
       const error = await response.json();
       throw new Error(error.error || 'Failed to complete profile');
     }
+
+    // Clear profile cache after update
+    apiCache.delete('profile_data');
+    apiCache.delete('jobs_limit=5');
+    apiCache.delete('learning_recommendations');
 
     return await response.json();
   },
@@ -268,6 +310,11 @@ export const profileApi = {
       const error = await response.json();
       throw new Error(error.error || 'Failed to update profile');
     }
+
+    // Clear related caches after update
+    apiCache.delete('profile_data');
+    apiCache.delete('jobs_limit=5');
+    apiCache.delete('learning_recommendations');
 
     return await response.json();
   },
@@ -297,13 +344,12 @@ export const profileApi = {
 
 // Jobs APIs
 export const jobsApi = {
-  // Get job recommendations
+  // Get job recommendations with caching
   getRecommendations: async (filters?: {
     experience_level?: 'fresher' | 'junior' | 'mid';
     job_type?: 'internship' | 'part_time' | 'full_time' | 'freelance';
     limit?: number;
   }): Promise<JobRecommendation[]> => {
-    const token = getToken();
     const params = new URLSearchParams();
     
     if (filters?.experience_level) {
@@ -316,6 +362,11 @@ export const jobsApi = {
       params.append('limit', filters.limit.toString());
     }
 
+    const cacheKey = `jobs_${params.toString()}`;
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
+    const token = getToken();
     const url = `${API_BASE_URL}/jobs/recommendations${params.toString() ? `?${params.toString()}` : ''}`;
     const response = await fetch(url, {
       headers: getHeaders(token),
@@ -331,14 +382,118 @@ export const jobsApi = {
       throw new Error(error.error || 'Failed to fetch job recommendations');
     }
 
+    const data = await response.json();
+    setCachedData(cacheKey, data);
+    return data;
+  },
+};
+
+// External Jobs APIs (NGO, Government, Local Boards)
+export interface ExternalJob {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  description: string;
+  url: string;
+  posted_date: string;
+  source: string;
+  job_type: string | null;
+  experience_level: string | null;
+  skills: string[];
+  salary: string | null;
+}
+
+export const externalJobsApi = {
+  // Get all external jobs
+  getAll: async (): Promise<ExternalJob[]> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/jobs/external`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem('authToken');
+      throw new Error('Session expired. Please login again.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch external jobs');
+    }
+
+    return await response.json();
+  },
+
+  // Get NGO jobs from ReliefWeb
+  getNGO: async (): Promise<ExternalJob[]> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/jobs/ngo`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem('authToken');
+      throw new Error('Session expired. Please login again.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch NGO jobs');
+    }
+
+    return await response.json();
+  },
+
+  // Get government portal jobs
+  getGovt: async (): Promise<ExternalJob[]> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/jobs/govt`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem('authToken');
+      throw new Error('Session expired. Please login again.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch government jobs');
+    }
+
+    return await response.json();
+  },
+
+  // Get local job board listings
+  getLocal: async (): Promise<ExternalJob[]> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/jobs/local`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401) {
+      localStorage.removeItem('authToken');
+      throw new Error('Session expired. Please login again.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch local jobs');
+    }
+
     return await response.json();
   },
 };
 
 // Learning Resources APIs
 export const learningApi = {
-  // Get learning resource recommendations
+  // Get learning resource recommendations with caching
   getRecommendations: async (): Promise<LearningRecommendation[]> => {
+    const cacheKey = 'learning_recommendations';
+    const cached = getCachedData(cacheKey);
+    if (cached) return cached;
+
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/learning/recommendations`, {
       headers: getHeaders(token),
@@ -354,7 +509,9 @@ export const learningApi = {
       throw new Error(error.error || 'Failed to fetch learning recommendations');
     }
 
-    return await response.json();
+    const data = await response.json();
+    setCachedData(cacheKey, data);
+    return data;
   },
 
   // Analyze skill gap for a target role
@@ -716,6 +873,239 @@ export const aiApi = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to get suggestions');
+    }
+
+    return await response.json();
+  },
+};
+
+// Admin APIs
+export const adminApi = {
+  // Get admin dashboard stats
+  getStats: async (): Promise<{
+    totalUsers: number;
+    totalJobs: number;
+    totalResources: number;
+    pendingFlags: number;
+    activeUsersToday: number;
+    jobApplicationsToday: number;
+  }> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch admin stats');
+    }
+
+    return await response.json();
+  },
+
+  // Get all jobs (for admin management)
+  getAllJobs: async (page: number = 1, limit: number = 20): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/jobs?page=${page}&limit=${limit}`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch jobs');
+    }
+
+    return await response.json();
+  },
+
+  // Get all learning resources (for admin management)
+  getAllResources: async (page: number = 1, limit: number = 20): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/resources?page=${page}&limit=${limit}`, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch resources');
+    }
+
+    return await response.json();
+  },
+
+  // Get all flagged content
+  getFlaggedContent: async (status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'): Promise<any> => {
+    const token = getToken();
+    const url = status 
+      ? `${API_BASE_URL}/admin/flagged?status=${status}`
+      : `${API_BASE_URL}/admin/flagged`;
+    
+    const response = await fetch(url, {
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch flagged content');
+    }
+
+    return await response.json();
+  },
+
+  // Create new job
+  createJob: async (jobData: any): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/jobs`, {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify(jobData),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create job');
+    }
+
+    return await response.json();
+  },
+
+  // Update job
+  updateJob: async (jobId: number, jobData: any): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/jobs/${jobId}`, {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify(jobData),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update job');
+    }
+
+    return await response.json();
+  },
+
+  // Delete job
+  deleteJob: async (jobId: number): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/jobs/${jobId}`, {
+      method: 'DELETE',
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete job');
+    }
+
+    return await response.json();
+  },
+
+  // Similar methods for resources...
+  createResource: async (resourceData: any): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/resources`, {
+      method: 'POST',
+      headers: getHeaders(token),
+      body: JSON.stringify(resourceData),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create resource');
+    }
+
+    return await response.json();
+  },
+
+  updateResource: async (resourceId: number, resourceData: any): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/resources/${resourceId}`, {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify(resourceData),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update resource');
+    }
+
+    return await response.json();
+  },
+
+  deleteResource: async (resourceId: number): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/resources/${resourceId}`, {
+      method: 'DELETE',
+      headers: getHeaders(token),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete resource');
+    }
+
+    return await response.json();
+  },
+
+  // Update flagged content status
+  updateFlaggedContent: async (flagId: number, status: string, notes?: string): Promise<any> => {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/admin/flagged/${flagId}`, {
+      method: 'PUT',
+      headers: getHeaders(token),
+      body: JSON.stringify({ status, admin_notes: notes }),
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Access denied. Admin privileges required.');
+    }
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update flagged content');
     }
 
     return await response.json();

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import dynamic from "next/dynamic"
 import Navbar from "@/components/Navbar"
 import JobCard from "@/components/JobCard"
@@ -12,12 +12,15 @@ import { profileApi, jobsApi, learningApi } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-// Lazy load heavy components
+// Lazy load heavy components with optimized settings
 const JobDetailsModal = dynamic(() => import("@/components/JobDetailsModal"), {
   ssr: false,
+  loading: () => null,
 });
+
 const Footer = dynamic(() => import("@/components/Footer"), {
-  loading: () => <div className="h-32" />,
+  loading: () => <div className="h-32 bg-transparent" />,
+  ssr: false,
 });
 
 export default function DashboardPage() {
@@ -108,13 +111,20 @@ export default function DashboardPage() {
     loadData()
   }, [router])
 
-  const handleViewJobDetails = (jobId: string) => {
+  const handleViewJobDetails = useCallback((jobId: string) => {
     const job = jobs.find(j => j.id === jobId)
     if (job) {
       setSelectedJob(job)
       setModalOpen(true)
     }
-  }
+  }, [jobs])
+
+  // Memoize average match score calculation
+  const averageMatchScore = useMemo(() => {
+    if (jobs.length === 0) return 'N/A'
+    const avg = Math.round(jobs.reduce((sum, job) => sum + (job.matchScore || 0), 0) / jobs.length)
+    return `${avg}%`
+  }, [jobs])
 
   if (isLoading) {
     return (
@@ -180,9 +190,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
-                    {jobs.length > 0 
-                      ? `${Math.round(jobs.reduce((sum, job) => sum + (job.matchScore || 0), 0) / jobs.length)}%`
-                      : 'N/A'}
+                    {averageMatchScore}
                   </p>
                   <p className="text-xs text-muted-foreground">Profile Match</p>
                 </div>
@@ -228,7 +236,7 @@ export default function DashboardPage() {
           </div>
           
           {jobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {jobs.map((job) => (
                 <JobCard
                   key={job.id}

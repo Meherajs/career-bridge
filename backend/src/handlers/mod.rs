@@ -12,6 +12,7 @@
 mod ai;
 mod applications;
 mod auth;
+mod external_jobs;
 mod jobs;
 mod learning;
 mod oauth;
@@ -46,6 +47,7 @@ pub fn create_router(app_state: AppState) -> Router {
     info!("  ✓ Public routes: /, /api/register, /api/login");
     info!("  ✓ OAuth routes: /api/auth/google, /api/auth/github");
     info!("  ✓ Protected routes: profile (+ CV upload), jobs, learning, applications, progress");
+    info!("  ✓ External jobs: ReliefWeb NGO, govt portals, local boards");
     info!("  ✓ AI routes: /api/ai/assist, /api/roadmaps");
 
     Router::new()
@@ -69,6 +71,11 @@ pub fn create_router(app_state: AppState) -> Router {
             "/api/jobs/recommendations",
             get(jobs::get_job_recommendations),
         )
+        // Protected routes - External Jobs Integration
+        .route("/api/jobs/external", get(external_jobs::get_external_jobs))
+        .route("/api/jobs/ngo", get(external_jobs::get_ngo_jobs))
+        .route("/api/jobs/govt", get(external_jobs::get_govt_jobs))
+        .route("/api/jobs/local", get(external_jobs::get_local_jobs))
         // Protected routes - Learning Resources
         .route(
             "/api/learning/recommendations",

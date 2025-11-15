@@ -5,7 +5,6 @@ import ThemeProvider from "@/components/ThemeProvider";
 import { ClientComponents } from "@/components/ClientComponents";
 import { Toaster } from "@/components/ui/sonner";
 import FloatingMentorButton from "@/components/FloatingMentorButton";
-import Script from "next/script";
 
 // Optimize font loading with next/font
 const inter = Inter({
@@ -13,11 +12,13 @@ const inter = Inter({
   display: "swap",
   variable: "--font-inter",
   preload: true,
+  // Only load the weights you actually use
+  weight: ["400", "500", "600", "700"],
 });
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
   variable: "--font-poppins",
   preload: true,
@@ -57,20 +58,10 @@ export default function RootLayout({
       </head>
       <body className={`antialiased ${inter.variable} ${poppins.variable}`}>
         <ThemeProvider>
-          <ClientComponents />
+          {children}
           <FloatingMentorButton />
           <Toaster />
-          <Script
-            src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/scripts//route-messenger.js"
-            strategy="lazyOnload"
-            data-target-origin="*"
-            data-message-type="ROUTE_CHANGE"
-            data-include-search-params="true"
-            data-only-in-iframe="true"
-            data-debug="true"
-            data-custom-data='{"appName": "YourApp", "version": "1.0.0", "greeting": "hi"}'
-          />
-          {children}
+          <ClientComponents />
         </ThemeProvider>
       </body>
     </html>
