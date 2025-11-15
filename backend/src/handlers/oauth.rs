@@ -59,6 +59,11 @@ pub async fn google_login(State(_state): State<AppState>) -> AppResult<Redirect>
             error!("GOOGLE_CLIENT_ID not set in environment: {}", e);
             AppError::InternalServerError
         })?;
+    let google_client_secret = std::env::var("GOOGLE_CLIENT_SECRET")
+        .map_err(|e| {
+            error!("GOOGLE_CLIENT_SECRET not set in environment: {}", e);
+            AppError::InternalServerError
+        })?;
     let google_redirect_uri = std::env::var("GOOGLE_REDIRECT_URI")
         .map_err(|e| {
             error!("GOOGLE_REDIRECT_URI not set in environment: {}", e);
