@@ -105,7 +105,10 @@ createdb -U postgres career_bridge
 psql -U postgres -d career_bridge -f schema.sql
 psql -U postgres -d career_bridge -f seed_data.sql
 
-# Configure .env file with database and OAuth credentials
+# Create .env file with required environment variables
+# See "Environment Variables & API Keys" section below for details
+# Minimum required: DATABASE_URL, JWT_SECRET, FRONTEND_URL
+
 # Then start the server
 cargo run
 ```
@@ -132,6 +135,207 @@ Visit `http://localhost:3001` to explore the application, or test the API:
 ```bash
 curl http://localhost:3000/
 ```
+
+## 🔐 Environment Variables & API Keys
+
+> **⚠️ Important:** Never commit `.env` files to version control. All sensitive credentials must be configured through environment variables.
+
+### Backend Environment Variables
+
+Create a `.env` file in the `backend/` directory with the following variables:
+
+#### Required Variables
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://postgres:password@localhost:5432/career_bridge
+
+# JWT Authentication
+JWT_SECRET=your-secret-key-change-in-production-minimum-32-characters
+
+# Frontend URL (for CORS and OAuth redirects)
+FRONTEND_URL=http://localhost:3001
+```
+
+#### Optional Variables (for enhanced features)
+
+```env
+# Server Configuration
+PORT=3000
+RUST_ENV=development
+RUST_LOG=info
+
+# OAuth Authentication (Google)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://127.0.0.1:3000/api/auth/google/callback
+
+# OAuth Authentication (GitHub)
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+GITHUB_REDIRECT_URI=http://127.0.0.1:3000/api/auth/github/callback
+
+# AI Services (Optional - for AI-powered features)
+GEMINI_API_KEY=your-gemini-api-key
+GROQ_API_KEY=your-groq-api-key
+HUGGINGFACE_API_KEY=your-huggingface-api-key
+```
+
+### Frontend Environment Variables
+
+Create a `.env.local` file in the `frontend/` directory:
+
+```env
+# Backend API URL
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:3000/api
+```
+
+### How to Obtain API Keys
+
+#### 1. Database (PostgreSQL)
+
+**Option A: Local PostgreSQL**
+```bash
+# Install PostgreSQL locally
+# Ubuntu/Debian: sudo apt-get install postgresql postgresql-contrib
+# macOS: brew install postgresql@14
+# Windows: Download from postgresql.org
+
+# Create database
+createdb -U postgres career_bridge
+
+# Update DATABASE_URL
+DATABASE_URL=postgresql://postgres:your-password@localhost:5432/career_bridge
+```
+
+**Option B: Cloud Database (Railway, Supabase, Neon)**
+- Sign up at [Railway](https://railway.app), [Supabase](https://supabase.com), or [Neon](https://neon.tech)
+- Create a PostgreSQL database
+- Copy the connection string to `DATABASE_URL`
+
+#### 2. JWT Secret
+
+Generate a secure random string (minimum 32 characters):
+
+```bash
+# Linux/macOS
+openssl rand -base64 32
+
+# Or use an online generator
+# https://generate-secret.vercel.app/32
+```
+
+#### 3. Google OAuth (Optional)
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable **Google+ API**
+4. Go to **Credentials** → **Create Credentials** → **OAuth 2.0 Client ID**
+5. Configure OAuth consent screen
+6. Add authorized redirect URI: `http://127.0.0.1:3000/api/auth/google/callback`
+7. Copy `Client ID` and `Client Secret` to `.env`
+
+#### 4. GitHub OAuth (Optional)
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Click **New OAuth App**
+3. Fill in:
+   - **Application name**: CareerBridge
+   - **Homepage URL**: `http://localhost:3001`
+   - **Authorization callback URL**: `http://127.0.0.1:3000/api/auth/github/callback`
+4. Copy `Client ID` and generate `Client Secret`
+5. Add to `.env` file
+
+#### 5. Google Gemini API (Optional - for AI features)
+
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Click **Get API Key**
+3. Create a new API key or use existing
+4. Copy to `GEMINI_API_KEY` in `.env`
+
+**Features enabled:**
+- Professional CV summary generation
+- Project description enhancement
+- Profile improvement suggestions
+- Career roadmap generation
+- Career mentor chatbot
+- Skill extraction from CV
+
+#### 6. Groq API (Optional - AI fallback)
+
+1. Go to [Groq Console](https://console.groq.com/)
+2. Sign up and navigate to **API Keys**
+3. Create a new API key
+4. Copy to `GROQ_API_KEY` in `.env`
+
+**Note:** Groq is used as a fallback if Gemini API fails. The system automatically switches between providers.
+
+#### 7. Hugging Face API (Optional - for AI job matching explanations)
+
+1. Go to [Hugging Face](https://huggingface.co/)
+2. Sign up and navigate to **Settings** → **Access Tokens**
+3. Create a new token with **Read** permissions
+4. Copy to `HUGGINGFACE_API_KEY` in `.env`
+
+**Features enabled:**
+- AI-generated job match explanations
+- Enhanced match analysis with strengths and improvement areas
+
+**Note:** If not provided, the system falls back to heuristic explanations.
+
+### Environment Variables Summary
+
+| Variable | Required | Purpose | Where to Get |
+|----------|----------|---------|--------------|
+| `DATABASE_URL` | ✅ | PostgreSQL connection | Local installation or cloud provider |
+| `JWT_SECRET` | ✅ | Token signing | Generate with `openssl rand -base64 32` |
+| `FRONTEND_URL` | ✅ | CORS configuration | Your frontend URL |
+| `PORT` | ❌ | Server port (default: 3000) | Optional override |
+| `GOOGLE_CLIENT_ID` | ❌ | Google OAuth | [Google Cloud Console](https://console.cloud.google.com/) |
+| `GOOGLE_CLIENT_SECRET` | ❌ | Google OAuth | [Google Cloud Console](https://console.cloud.google.com/) |
+| `GITHUB_CLIENT_ID` | ❌ | GitHub OAuth | [GitHub Developer Settings](https://github.com/settings/developers) |
+| `GITHUB_CLIENT_SECRET` | ❌ | GitHub OAuth | [GitHub Developer Settings](https://github.com/settings/developers) |
+| `GEMINI_API_KEY` | ❌ | AI features (primary) | [Google AI Studio](https://makersuite.google.com/app/apikey) |
+| `GROQ_API_KEY` | ❌ | AI features (fallback) | [Groq Console](https://console.groq.com/) |
+| `HUGGINGFACE_API_KEY` | ❌ | AI job matching | [Hugging Face](https://huggingface.co/settings/tokens) |
+
+### Frontend Variables
+
+| Variable | Required | Purpose | Default |
+|----------|----------|---------|---------|
+| `NEXT_PUBLIC_API_BASE_URL` | ❌ | Backend API endpoint | `http://127.0.0.1:3000/api` |
+
+### Security Best Practices
+
+1. **Never commit `.env` files** - Already in `.gitignore`
+2. **Use strong JWT secrets** - Minimum 32 characters, random and unique
+3. **Rotate secrets regularly** - Especially in production
+4. **Use different keys for dev/prod** - Never reuse production keys
+5. **Restrict API key permissions** - Only grant necessary permissions
+6. **Monitor API usage** - Set up usage alerts to detect abuse
+7. **Use environment-specific values** - Different values for development, staging, production
+
+### Production Deployment
+
+For production deployment (Railway, Vercel, etc.):
+
+1. Set environment variables in your hosting platform's dashboard
+2. Never commit production secrets to the repository
+3. Use platform-specific secret management (e.g., Railway Secrets, Vercel Environment Variables)
+4. Enable HTTPS/TLS for all connections
+5. Use strong, randomly generated secrets
+
+### Quick Setup Checklist
+
+- [ ] PostgreSQL installed and running
+- [ ] Database created (`career_bridge`)
+- [ ] `backend/.env` file created with required variables
+- [ ] `JWT_SECRET` generated (32+ characters)
+- [ ] `frontend/.env.local` created (optional, uses defaults)
+- [ ] OAuth credentials configured (optional)
+- [ ] AI API keys added (optional, for enhanced features)
+
+> **💡 Tip:** Start with required variables only. You can add OAuth and AI keys later to enable additional features.
 
 ## 🤖 Automation Scripts
 

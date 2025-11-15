@@ -1,4 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 node_modules
@@ -60,3 +59,25 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 *.pdf
+
+# Build scripts and automation files
+Makefile
+make.ps1
+make.bat
+
+# Temporary files
+~$*
+*.tmp
+*.temp
+bash.exe.stackdump
+debug.log
+
+# Media files (if not needed in repo)
+*.mp4
+*.mov
+*.avi
+
+# Rust build artifacts
+backend/target/
+backend/**/*.rs.bk
+backend/Cargo.lock
