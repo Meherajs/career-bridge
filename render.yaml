@@ -21,3 +21,23 @@ services:
         value: info
       - key: RUST_ENV
         value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        value: ""
+      - key: GOOGLE_CLIENT_SECRET
+        value: ""
+      - key: GITHUB_CLIENT_ID
+        value: ""
+      - key: GITHUB_CLIENT_SECRET
+        value: ""
+      - key: FRONTEND_URL
+        value: "" # e.g., https://your-frontend-app.onrender.com
+      - key: GEMINI_API_KEY
+        value: ""
+      - key: GROQ_API_KEY
+        value: ""
+      - key: YOUTUBE_API_KEY
+        value: ""
+      - key: RENDER_EXTERNAL_URL
+        value: ""
