@@ -80,12 +80,12 @@ async fn main() {
     let app = handlers::create_router(app_state);
     info!("✓ Routes configured");
 
-    // Bind to address - use 0.0.0.0 for Railway and read PORT from environment
+    // Bind to address - use 0.0.0.0 for Render and read PORT from environment
     let port = env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
         .parse::<u16>()
         .expect("PORT must be a valid number");
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     info!("Binding to address: {}", addr);
     
     let listener = tokio::net::TcpListener::bind(addr)
